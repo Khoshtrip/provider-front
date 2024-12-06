@@ -1,0 +1,38 @@
+@font-face {
+    font-family: "Kalameh";
+    src: url("../assets/fonts/Kalameh-thin.ttf") format("truetype");
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: "Kalameh";
+    src: url("../assets/fonts/Kalameh-Regular.ttf") format("truetype");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Kalameh";
+    src: url("../assets/fonts/Kalameh-Bold.ttf") format("truetype");
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: "Kalameh";
+    src: url("../assets/fonts/Kalameh-Black.ttf") format("truetype");
+    font-weight: 900;
+}
+
+body {
+    font-family: "Kalameh", sans-serif;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #fbf4f4;
+}
+
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
