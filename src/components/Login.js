@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../styles/Login.css";
+import Input from "./shared/Input";
 
 const Login = ({ onClose }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -69,66 +70,53 @@ const Login = ({ onClose }) => {
                 <form onSubmit={handleSubmit}>
                     {!isLogin && (
                         <>
-                            <input
-                                type="text"
-                                name="username"
-                                placeholder="Username"
-                                value={formData.username}
-                                onChange={handleChange}
-                            />
-                            {errors.username && (
-                                <span className="error">{errors.username}</span>
-                            )}
+                            <Input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} error={errors.username} />
 
-                            <input
+                            <Input
                                 type="password"
                                 name="password"
                                 placeholder="Password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                error={errors.password}
                             />
-                            {errors.password && (
-                                <span className="error">{errors.password}</span>
-                            )}
-                            <input
+                            <Input
                                 type="tel"
                                 name="phoneNumber"
                                 placeholder="Phone Number"
                                 value={formData.phoneNumber}
                                 onChange={handleChange}
                             />
-                            <input
+                            <Input
                                 type="text"
                                 name="nationalCode"
                                 placeholder="National Code"
                                 value={formData.nationalCode}
                                 onChange={handleChange}
                             />
-                            <input
+                            <Input
                                 type="email"
                                 name="email"
                                 placeholder="Email"
                                 value={formData.email}
                                 onChange={handleChange}
+                                error={errors.email}
                             />
-                            {errors.email && (
-                                <span className="error">{errors.email}</span>
-                            )}
-                            <input
+                            <Input
                                 type="text"
                                 name="firstName"
                                 placeholder="First Name"
                                 value={formData.firstName}
                                 onChange={handleChange}
                             />
-                            <input
+                            <Input
                                 type="text"
                                 name="lastName"
                                 placeholder="Last Name"
                                 value={formData.lastName}
                                 onChange={handleChange}
                             />
-                            <input
+                            <Input
                                 type="password"
                                 name="passwordRepeat"
                                 placeholder="Repeat Password"
@@ -140,30 +128,26 @@ const Login = ({ onClose }) => {
 
                     {isLogin && (
                         <>
-                            <input
+                            <Input
                                 type="text"
                                 name="username"
                                 placeholder="Username"
                                 value={formData.username}
                                 onChange={handleChange}
+                                error={errors.username}
                             />
-                            {errors.username && (
-                                <span className="error">{errors.username}</span>
-                            )}
 
-                            <input
+                            <Input
                                 type="password"
                                 name="password"
                                 placeholder="Password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                error={errors.password}
                             />
-                            {errors.password && (
-                                <span className="error">{errors.password}</span>
-                            )}
                             <div className="login-options">
                                 <label>
-                                    <input type="checkbox" name="rememberMe" />{" "}
+                                    <Input type="checkbox" name="rememberMe" />{" "}
                                     Remember Me
                                 </label>
                                 <a href="#forgot-password">Forgot Password?</a>
