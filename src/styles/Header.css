@@ -12,28 +12,6 @@
     color: #fbf4f4;
 }
 
-.login-signup-popup p {
-    color: #fbf4f4;
-}
-
-.login-signup-popup label {
-    color: #fbf4f4;
-}
-
-.login-signup-popup h2 {
-    color: #fbf4f4;
-}
-
-.login-signup-popup a {
-    color: #fbf4f4;
-}
-
-.login-signup-popup input {
-    color: #fbf4f4;
-    background-color: #ffffff;
-    border-color: #fbf4f4;
-}
-
 nav {
     display: flex;
     gap: 1rem;

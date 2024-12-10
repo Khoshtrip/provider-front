@@ -66,3 +66,19 @@ button {
         width: 90%;
     }
 }
+
+.login-signup-popup p {
+    color: #fbf4f4;
+}
+
+.login-signup-popup label {
+    color: #fbf4f4;
+}
+
+.login-signup-popup h2 {
+    color: #fbf4f4;
+}
+
+.login-signup-popup a {
+    color: #fbf4f4;
+}
