@@ -22,17 +22,10 @@
     font-weight: 900;
 }
 
-body {
-    font-family: "Kalameh", sans-serif;
-    font-weight: 400;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: #fbf4f4;
-}
+$font-family-base: "Kalameh", sans-serif;
+$body-bg: #fbf4f4;
 
-.App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
+
+$primary: #370000;
+
+@import "../../node_modules/bootstrap/scss/bootstrap";

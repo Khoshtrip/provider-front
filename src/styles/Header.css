@@ -1,40 +1,22 @@
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
+.navbar {
     background-color: #37000015;
+
 }
 
-.logo {
+.navbar .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #fbf4f4;
-}
-
-nav {
-    display: flex;
-    gap: 1rem;
-}
-
-.logo a {
-    text-decoration: none;
     color: #370000;
 }
 
-.auth-section a {
-    text-decoration: none;
-}
-
-.login-button,
-.profile-button {
+.navbar .btn-primary {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
 }
 
-.login-button {
+/* TODO: .login-button {
     background-color: #0f0100;
     color: #fbf4f4;
 }
@@ -42,4 +24,4 @@ nav {
 .profile-button {
     background-color: #28a745;
     color: white;
-}
+} */
