@@ -50,10 +50,11 @@ const Header = () => {
                 </Container>
             </Navbar>
 
-            {showLoginSignup && (
+            {/* {showLoginSignup && (
                 <Login onClose={() => setShowLoginSignup(false)} />
-            )}
-            
+            )} */}
+            <Login show={showLoginSignup} onHide={() => setShowLoginSignup(false)} />
+                      
         </>
     );
 };
