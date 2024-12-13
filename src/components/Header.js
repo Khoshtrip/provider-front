@@ -27,20 +27,20 @@ const Header = () => {
                                         onClick={() => {
                                             // Navigate to profile page
                                         }}
-                                        >
+                                    >
                                         {user.firstName}
                                     </Button>
                                     <Button
                                         variant="outline-light"
                                         onClick={logout}
-                                        >
+                                    >
                                         Logout
                                     </Button>
                                 </>
                             ) : (
                                 <Button
-                                variant="primary"
-                                onClick={() => setShowLoginSignup(true)}
+                                    variant="primary"
+                                    onClick={() => setShowLoginSignup(true)}
                                 >
                                     Login
                                 </Button>
@@ -53,8 +53,12 @@ const Header = () => {
             {/* {showLoginSignup && (
                 <Login onClose={() => setShowLoginSignup(false)} />
             )} */}
-            <Login show={showLoginSignup} onHide={() => setShowLoginSignup(false)} />
-                      
+            <Login
+                show={showLoginSignup}
+                onHide={() => {
+                    setShowLoginSignup(false);
+                }}
+            />
         </>
     );
 };
