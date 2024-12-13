@@ -56,8 +56,9 @@ const Login = ({ show, onHide }) => {
     }, [isCounting]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        validateField(e.target.name, e.target.value);
+        const value = e.target.value.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+        setFormData({ ...formData, [e.target.name]: value });
+        validateField(e.target.name, value);
         setTouch({ ...touch, [e.target.name]: true });
     };
 
