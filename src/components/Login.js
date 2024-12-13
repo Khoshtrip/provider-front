@@ -112,6 +112,19 @@ const Login = ({ show, onHide }) => {
         }
     };
 
+    function validateNationalCode(nationalCode) {
+        if (!/^\d{10}$/.test(nationalCode)) return false;
+    
+        const check = parseInt(nationalCode[9]);
+        const sum = nationalCode
+            .slice(0, 9)
+            .split('')
+            .reduce((acc, digit, index) => acc + parseInt(digit) * (10 - index), 0);
+    
+        const remainder = sum % 11;
+        return remainder < 2 ? check === remainder : check === 11 - remainder;
+    }
+
     const validateField = (fieldName, value) => {
         let newErrors = { ...errors };
         switch (fieldName) {
@@ -121,9 +134,23 @@ const Login = ({ show, onHide }) => {
                         ? "Password must be at least 6 characters long"
                         : "";
                 break;
+            case "passwordRepeat":
+                newErrors.passwordRepeat =
+                    value !== formData.password ? "Passwords do not match" : "";
+                break;
             case "email":
                 newErrors.email = !/\S+@\S+\.\S+/.test(value)
                     ? "Email is invalid"
+                    : "";
+                break;
+            case "mobile_number":
+                newErrors.mobile_number = !/^(\+98|0)?9\d{9}$/.test(value) // Matches +989xxxxxxxx or 09xxxxxxxx
+                    ? "Phone number is invalid"
+                    : "";
+                break;
+            case "nationalCode":
+                newErrors.nationalCode = !validateNationalCode(value)
+                    ? "National Code is invalid"
                     : "";
                 break;
             default:
@@ -321,8 +348,13 @@ const Login = ({ show, onHide }) => {
                                     name="passwordRepeat"
                                     value={formData.passwordRepeat}
                                     onChange={handleChange}
+                                    isValid={touch.passwordRepeat && !errors.passwordRepeat}
+                                    isInvalid={!!errors.passwordRepeat}
                                     required
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.passwordRepeat}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Row>
@@ -356,8 +388,13 @@ const Login = ({ show, onHide }) => {
                                     placeholder="National Code"
                                     name="nationalCode"
                                     value={formData.nationalCode}
-                                    onChange={handleChange}
+                                    onChange={handleChange} 
+                                    isValid={touch.nationalCode && !errors.nationalCode}
+                                    isInvalid={!!errors.nationalCode}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.nationalCode}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                         </>
