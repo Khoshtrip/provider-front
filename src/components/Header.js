@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { Navbar, Nav, Button, Container, Modal } from "react-bootstrap";
+import { Navbar, Nav, Button, Container } from "react-bootstrap";
 import Login from "./Login";
 import "../styles/Header.css";
 

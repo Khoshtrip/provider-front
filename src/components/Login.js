@@ -1,29 +1,91 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../styles/Login.css";
-import { Form, Modal, InputGroup, Col, Row, Button } from "react-bootstrap";
+import { Form, Modal, Button, InputGroup, Col, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { AuthenticationApi } from "../apis/AuthenticationApi";
+
+const LoginState = {
+    LOGIN: "login",
+    SIGNUP: "signup",
+    VERIFICATION_CODE: "verification_code",
+    VERIFICATION_CONTACT: "verification_contact",
+};
 
 const Login = ({ show, onHide }) => {
-    const [isLogin, setIsLogin] = useState(true);
+    const [loginState, setLoginState] = useState(LoginState.LOGIN);
+    const { login, signup, loading } = useContext(AuthContext);
+
     const [formData, setFormData] = useState({
         username: "",
         password: "",
-        phoneNumber: "",
+        mobile_number: "",
         nationalCode: "",
         email: "",
         firstName: "",
         lastName: "",
         passwordRepeat: "",
+        verifyCode: "",
+        verified_contact: "email",
     });
+
     const [touch, setTouch] = useState({});
     const [errors, setErrors] = useState({});
-    const { login, signup } = useContext(AuthContext);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         validateField(e.target.name, e.target.value);
         setTouch({ ...touch, [e.target.name]: true });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        switch (loginState) {
+            case LoginState.LOGIN:
+                await login(formData.username, formData.password)
+                    .then(onClose)
+                    .catch(() => {
+                        let newErrors = { ...errors };
+                        newErrors.username = "Invalid username or password";
+                        newErrors.password = "Invalid username or password";
+                        setErrors(newErrors);
+                    });
+                break;
+            case LoginState.SIGNUP:
+                await signup(formData)
+                    .then()
+                    .catch(() => {
+                        let newErrors = { ...errors };
+                        newErrors.username = "Invalid username or password";
+                        newErrors.password = "Invalid username or password";
+                        setErrors(newErrors);
+                    });
+                break;
+            case LoginState.VERIFICATION_CONTACT:
+                if (errors.email === "") {
+                    await AuthenticationApi.sendVerificationCode(formData.email)
+                        .then(() => {
+                            setLoginState(LoginState.VERIFICATION_CODE);
+                        })
+                        .catch(() => {});
+                } else {
+                }
+                break;
+            case LoginState.VERIFICATION_CODE:
+                await AuthenticationApi.verifyCode(
+                    formData.email,
+                    formData.code
+                )
+                    .then(onClose)
+                    .catch(() => {
+                        let newErrors = { ...errors };
+                        newErrors.code = "Invalid code";
+                        setErrors(newErrors);
+                    });
+                break;
+            default:
+                break;
+        }
     };
 
     const validateField = (fieldName, value) => {
@@ -46,27 +108,136 @@ const Login = ({ show, onHide }) => {
                     ? "Email is invalid"
                     : "";
                 break;
+            default:
+                break;
         }
         setErrors(newErrors);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (isLogin) {
-            await login(formData.username, formData.password);
-        } else {
-            await signup(formData);
-        }
+    const resetState = () => {
+        setErrors({});
+        setFormData({
+            username: "",
+            password: "",
+            mobile_number: "",
+            nationalCode: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            passwordRepeat: "",
+            verifyCode: "",
+            verified_contact: "email",
+        });
+        setTouch({});
+    };
+
+    const onClose = () => {
+        onHide();
+        resetState();
+        setLoginState(LoginState.LOGIN);
     };
 
     return (
-        <Modal show={show} onHide={onHide} fullscreen="md-down" centered>
+        <Modal show={show} onHide={onClose} fullscreen="md-down" centered>
             <Modal.Header closeButton>
-                <Modal.Title>{isLogin ? "Login" : "Sign Up"}</Modal.Title>
+                <Modal.Title>
+                    {loginState === LoginState.LOGIN ? "Login" : "Sign Up"}
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
-                    {!isLogin && (
+                    {loginState === LoginState.VERIFICATION_CONTACT && (
+                        <>
+                            <Form.Group controlId="Email">
+                                <Form.Label>
+                                    Enter your Email for verification
+                                </Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    isValid={touch.email && !errors.email}
+                                    isInvalid={!!errors.email}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.email}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </>
+                    )}
+
+                    {loginState === LoginState.VERIFICATION_CODE && (
+                        <>
+                            <Form.Group controlId="Code">
+                                <Form.Label>
+                                    Enter the code sent to you
+                                </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Code"
+                                    name="code"
+                                    value={formData.code}
+                                    onChange={handleChange}
+                                    isValid={touch.code && !errors.code}
+                                    isInvalid={!!errors.code}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.code}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </>
+                    )}
+
+                    {loginState === LoginState.LOGIN && (
+                        <>
+                            <Form.Group controlId="Username">
+                                <Form.Label>Username</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Username"
+                                    name="username"
+                                    value={formData.username}
+                                    isValid={touch.username && !errors.username}
+                                    isInvalid={!!errors.username}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group controlId="Password">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    placeholder="Password"
+                                    name="password"
+                                    value={formData.password}
+                                    isValid={touch.password && !errors.password}
+                                    isInvalid={!!errors.password}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <div className="login-options">
+                                <Form.Group controlId="RememberMe">
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Remember Me"
+                                        name="rememberMe"
+                                    />
+                                </Form.Group>
+                                <Link to="/forgot-password" onClick={onClose}>
+                                    Forgot Password?
+                                </Link>
+                            </div>
+                        </>
+                    )}
+
+                    {loginState === LoginState.SIGNUP && (
                         <>
                             <Form.Group controlId="Username">
                                 <Form.Label>Username</Form.Label>
@@ -187,57 +358,30 @@ const Login = ({ show, onHide }) => {
                         </>
                     )}
 
-                    {isLogin && (
-                        <>
-                            <Form.Group controlId="Username">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Username"
-                                    name="username"
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group controlId="Password">
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    placeholder="Password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <div className="login-options">
-                                <Form.Group controlId="RememberMe">
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Remember Me"
-                                        name="rememberMe"
-                                    />
-                                </Form.Group>
-                                <Link to="/forgot-password">
-                                    Forgot Password?
-                                </Link>
-                            </div>
-                        </>
-                    )}
-
-                    <Button variant="primary" type="submit">
-                        {isLogin ? "Login" : "Sign Up"}
+                    <Button variant="primary" type="submit" disabled={loading}>
+                        {loading
+                            ? "..."
+                            : loginState === LoginState.LOGIN
+                            ? "Login"
+                            : "Next"}
                     </Button>
                 </Form>
-                <p>
-                    {isLogin
+
+                <p className="modal_footer">
+                    {loginState === LoginState.LOGIN
                         ? "Don't have an account? "
                         : "Already have an account? "}
-                    <Link onClick={() => setIsLogin(!isLogin)}>
-                        {isLogin ? "Sign Up" : "Login"}
+                    <Link
+                        onClick={() => {
+                            resetState();
+                            setLoginState(
+                                loginState === LoginState.LOGIN
+                                    ? LoginState.VERIFICATION_CONTACT
+                                    : LoginState.LOGIN
+                            );
+                        }}
+                    >
+                        {loginState === LoginState.LOGIN ? "Sign Up" : "Login"}
                     </Link>
                 </p>
             </Modal.Body>
