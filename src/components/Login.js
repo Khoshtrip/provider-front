@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../styles/Login.css";
-import { Form, Modal, Button, InputGroup, Col, Row } from "react-bootstrap";
+import { Form, Modal, Button, Col, Row, Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { AuthenticationApi } from "../apis/AuthenticationApi";
 
@@ -15,7 +15,7 @@ const LoginState = {
 const Login = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
     const { login, signup, loading } = useContext(AuthContext);
-
+    
     const [formData, setFormData] = useState({
         password: "",
         mobile_number: "",
@@ -27,9 +27,33 @@ const Login = ({ show, onHide }) => {
         verifyCode: "",
         verified_contact: "email",
     });
-
+    
     const [touch, setTouch] = useState({});
     const [errors, setErrors] = useState({});
+    const [timer, setTimer] = useState(120);
+    const [isCounting, setIsCounting] = useState(false);
+
+    const startTimer = () => {
+        setIsCounting(true);
+        setTimer(120);
+    };
+
+    useEffect(() => {
+        let interval;
+        if (isCounting) {
+            interval = setInterval(() => {
+                setTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        setIsCounting(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isCounting]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -61,9 +85,10 @@ const Login = ({ show, onHide }) => {
                     });
                 break;
             case LoginState.VERIFICATION_CONTACT:
-                if (errors.email === "") {
-                    await AuthenticationApi.sendVerificationCode(formData.email)
+                if (errors.mobile_number === "") {
+                    await AuthenticationApi.sendVerificationCode(formData.mobile_number)
                         .then(() => {
+                            startTimer();
                             setLoginState(LoginState.VERIFICATION_CODE);
                         })
                         .catch(() => {});
@@ -129,6 +154,14 @@ const Login = ({ show, onHide }) => {
         setLoginState(LoginState.LOGIN);
     };
 
+    const resendCode = () => {
+        AuthenticationApi.sendVerificationCode(formData.email)
+            .then(() => {
+                startTimer();
+            })
+            .catch(() => {});
+    }
+
     return (
         <Modal show={show} onHide={onClose} fullscreen="md-down" centered>
             <Modal.Header closeButton>
@@ -140,25 +173,25 @@ const Login = ({ show, onHide }) => {
                 <Form onSubmit={handleSubmit}>
                     {loginState === LoginState.VERIFICATION_CONTACT && (
                         <>
-                            <Form.Group controlId="Email">
-                                <Form.Label>
-                                    Enter your Email for verification
-                                </Form.Label>
+                            <Form.Group controlId="PhoneNumber">
+                                <Form.Label>Phone Number</Form.Label>
                                 <Form.Control
-                                    type="email"
-                                    placeholder="Email"
-                                    name="email"
-                                    value={formData.email}
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    name="mobile_number"
+                                    value={formData.mobile_number}
+                                    isValid={touch.mobile_number && !errors.mobile_number}
+                                    isInvalid={!!errors.mobile_number}
                                     onChange={handleChange}
-                                    isValid={touch.email && !errors.email}
-                                    isInvalid={!!errors.email}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
-                                    {errors.email}
+                                    {errors.mobile_number}
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </>
+
+                        
                     )}
 
                     {loginState === LoginState.VERIFICATION_CODE && (
@@ -181,6 +214,21 @@ const Login = ({ show, onHide }) => {
                                     {errors.code}
                                 </Form.Control.Feedback>
                             </Form.Group>
+                            <p className="mb-0">
+                                {isCounting ? (
+                                    <span>
+                                        Resend code in <strong>{timer}</strong> seconds
+                                    </span>
+                                ) : (
+                                    "Didn't receive the code?"
+                                )}
+                            </p>
+                            {!isCounting && (
+                                <Stack direction="horizontal" className="col-md-8 mx-auto">
+                                    <Button variant="secondary" onClick={resendCode}>Resend Code</Button>
+                                    <Button variant="secondary" onClick={() => {setLoginState(LoginState.VERIFICATION_CONTACT)}} className="ms-auto">Change Phone Number</Button>
+                                </Stack>
+                            )}
                         </>
                     )}
 
@@ -191,7 +239,7 @@ const Login = ({ show, onHide }) => {
                                 <Form.Control
                                     type="tel"
                                     placeholder="Phone Number"
-                                    name="phoneNumber"
+                                    name="mobile_number"
                                     value={formData.mobile_number}
                                     isValid={touch.mobile_number && !errors.mobile_number}
                                     isInvalid={!!errors.mobile_number}
