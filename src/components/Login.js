@@ -17,7 +17,6 @@ const Login = ({ show, onHide }) => {
     const { login, signup, loading } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
-        username: "",
         password: "",
         mobile_number: "",
         nationalCode: "",
@@ -42,11 +41,11 @@ const Login = ({ show, onHide }) => {
         e.preventDefault();
         switch (loginState) {
             case LoginState.LOGIN:
-                await login(formData.username, formData.password)
+                await login(formData.mobile_number, formData.password)
                     .then(onClose)
                     .catch(() => {
                         let newErrors = { ...errors };
-                        newErrors.username = "Invalid username or password";
+                        newErrors.mobile_number = "Invalid username or password";
                         newErrors.password = "Invalid username or password";
                         setErrors(newErrors);
                     });
@@ -56,7 +55,7 @@ const Login = ({ show, onHide }) => {
                     .then()
                     .catch(() => {
                         let newErrors = { ...errors };
-                        newErrors.username = "Invalid username or password";
+                        newErrors.mobile_number = "Invalid username or password";
                         newErrors.password = "Invalid username or password";
                         setErrors(newErrors);
                     });
@@ -91,12 +90,6 @@ const Login = ({ show, onHide }) => {
     const validateField = (fieldName, value) => {
         let newErrors = { ...errors };
         switch (fieldName) {
-            case "username":
-                newErrors.username =
-                    value.length < 3
-                        ? "Username must be at least 3 characters long"
-                        : "";
-                break;
             case "password":
                 newErrors.password =
                     value.length < 6
@@ -117,7 +110,6 @@ const Login = ({ show, onHide }) => {
     const resetState = () => {
         setErrors({});
         setFormData({
-            username: "",
             password: "",
             mobile_number: "",
             nationalCode: "",
@@ -194,15 +186,15 @@ const Login = ({ show, onHide }) => {
 
                     {loginState === LoginState.LOGIN && (
                         <>
-                            <Form.Group controlId="Username">
-                                <Form.Label>Username</Form.Label>
+                            <Form.Group controlId="PhoneNumber">
+                                <Form.Label>Phone Number</Form.Label>
                                 <Form.Control
-                                    type="text"
-                                    placeholder="Username"
-                                    name="username"
-                                    value={formData.username}
-                                    isValid={touch.username && !errors.username}
-                                    isInvalid={!!errors.username}
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    name="phoneNumber"
+                                    value={formData.mobile_number}
+                                    isValid={touch.mobile_number && !errors.mobile_number}
+                                    isInvalid={!!errors.mobile_number}
                                     onChange={handleChange}
                                     required
                                 />
@@ -239,29 +231,21 @@ const Login = ({ show, onHide }) => {
 
                     {loginState === LoginState.SIGNUP && (
                         <>
-                            <Form.Group controlId="Username">
-                                <Form.Label>Username</Form.Label>
-                                <InputGroup hasValidation>
-                                    <InputGroup.Text id="inputGroupPrepend">
-                                        @
-                                    </InputGroup.Text>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Username"
-                                        name="username"
-                                        aria-describedby="inputGroupPrepend"
-                                        value={formData.username}
-                                        onChange={handleChange}
-                                        isValid={
-                                            touch.username && !errors.username
-                                        }
-                                        isInvalid={!!errors.username}
-                                        required
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.username}
-                                    </Form.Control.Feedback>
-                                </InputGroup>
+                            <Form.Group controlId="Email">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    isValid={touch.email && !errors.email}
+                                    isInvalid={!!errors.email}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.email}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group controlId="Password">
@@ -317,17 +301,6 @@ const Login = ({ show, onHide }) => {
                                 </Form.Group>
                             </Row>
 
-                            <Form.Group controlId="PhoneNumber">
-                                <Form.Label>Phone Number</Form.Label>
-                                <Form.Control
-                                    type="tel"
-                                    placeholder="Phone Number"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleChange}
-                                />
-                            </Form.Group>
-
                             <Form.Group controlId="NationalCode">
                                 <Form.Label>National Code</Form.Label>
                                 <Form.Control
@@ -339,22 +312,6 @@ const Login = ({ show, onHide }) => {
                                 />
                             </Form.Group>
 
-                            <Form.Group controlId="Email">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    isValid={touch.email && !errors.email}
-                                    isInvalid={!!errors.email}
-                                    required
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors.email}
-                                </Form.Control.Feedback>
-                            </Form.Group>
                         </>
                     )}
 
