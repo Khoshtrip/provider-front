@@ -28,11 +28,13 @@ const Header = () => {
                                             // Navigate to profile page
                                         }}
                                     >
-                                        {user.firstName}
+                                        {user.first_name}
                                     </Button>
                                     <Button
                                         variant="outline-light"
-                                        onClick={logout}
+                                        onClick={() => {
+                                            logout()
+                                        }}
                                     >
                                         Logout
                                     </Button>

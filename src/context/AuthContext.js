@@ -7,13 +7,21 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("access");
         if (token) {
-            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            fetchUser();
+            fetchUser()
+                .then(() => {
+                    api.defaults.headers.common[
+                        "Authorization"
+                    ] = `Bearer ${token}`;
+                })
+                .catch(() => {
+                    localStorage.removeItem("access");
+                    localStorage.removeItem("refresh");
+                });
         } else {
             setLoading(false);
         }
@@ -23,9 +31,9 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await AuthenticationApi.fetchUser();
             setUser(response);
+            console.log(response);
             setIsAuthenticated(true);
         } catch (error) {
-            console.error("Error fetching user:", error);
             throw error;
         } finally {
             setLoading(false);
@@ -37,6 +45,7 @@ export const AuthProvider = ({ children }) => {
             const response = await AuthenticationApi.login(username, password);
             localStorage.setItem("access", response.access);
             localStorage.setItem("refresh", response.refresh);
+            console.log(response);
             api.defaults.headers.common[
                 "Authorization"
             ] = `Bearer ${response.access}`;
@@ -50,19 +59,17 @@ export const AuthProvider = ({ children }) => {
     const signup = async (userData) => {
         try {
             const response = await AuthenticationApi.signup(userData);
-            localStorage.setItem("access", response.access);
-            localStorage.setItem("refresh", response.refresh);
-            api.defaults.headers.common[
-                "Authorization"
-            ] = `Bearer ${response.token}`;
-            await fetchUser();
+            // await fetchUser();
         } catch (error) {
             console.error("Signup error:", error);
             throw error;
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        const refreshToken = localStorage.getItem("refresh")
+        const response = await AuthenticationApi.logout(refreshToken);
+        console.log(response);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         delete api.defaults.headers.common["Authorization"];

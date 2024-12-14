@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../styles/Login.css";
-import { Form, Modal, Button, Col, Row, Stack } from "react-bootstrap";
+import { Form, Modal, Button, Col, Row, Stack, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { AuthenticationApi } from "../apis/AuthenticationApi";
 
@@ -15,10 +15,11 @@ const LoginState = {
 const Login = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
     const { login, signup, loading } = useContext(AuthContext);
-    
+    const [showAlert, setShowAlert] = useState(false);
+
     const [formData, setFormData] = useState({
         password: "",
-        mobile_number: "",
+        phone_number: "",
         nationalCode: "",
         email: "",
         firstName: "",
@@ -26,8 +27,9 @@ const Login = ({ show, onHide }) => {
         passwordRepeat: "",
         verifyCode: "",
         verified_contact: "email",
+        date_of_birth: "1-1-1",
     });
-    
+
     const [touch, setTouch] = useState({});
     const [errors, setErrors] = useState({});
     const [timer, setTimer] = useState(120);
@@ -56,7 +58,9 @@ const Login = ({ show, onHide }) => {
     }, [isCounting]);
 
     const handleChange = (e) => {
-        const value = e.target.value.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+        const value = e.target.value.replace(/[۰-۹]/g, (d) =>
+            "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
+        );
         setFormData({ ...formData, [e.target.name]: value });
         validateField(e.target.name, value);
         setTouch({ ...touch, [e.target.name]: true });
@@ -64,30 +68,42 @@ const Login = ({ show, onHide }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         switch (loginState) {
             case LoginState.LOGIN:
-                await login(formData.mobile_number, formData.password)
+                await login(formData.phone_number, formData.password)
                     .then(onClose)
                     .catch(() => {
                         let newErrors = { ...errors };
-                        newErrors.mobile_number = "Invalid username or password";
+                        newErrors.phone_number = "Invalid username or password";
                         newErrors.password = "Invalid username or password";
                         setErrors(newErrors);
                     });
                 break;
             case LoginState.SIGNUP:
                 await signup(formData)
-                    .then()
+                    .then(() => {
+                        setShowAlert(true);
+                        setTimeout(() => {
+                            setShowAlert(false);
+                            resetState();
+                            setLoginState(LoginState.LOGIN);
+                        }, 1000);
+                    })
                     .catch(() => {
                         let newErrors = { ...errors };
-                        newErrors.mobile_number = "Invalid username or password";
+                        newErrors.phone_number = "Invalid username or password";
                         newErrors.password = "Invalid username or password";
                         setErrors(newErrors);
                     });
+
                 break;
             case LoginState.VERIFICATION_CONTACT:
-                if (errors.mobile_number === "") {
-                    await AuthenticationApi.sendVerificationCode(formData.mobile_number)
+                if (errors.phone_number === "") {
+                    // setLoginState(LoginState.VERIFICATION_CODE);
+                    await AuthenticationApi.sendVerificationCode(
+                        formData.phone_number
+                    )
                         .then(() => {
                             startTimer();
                             setLoginState(LoginState.VERIFICATION_CODE);
@@ -98,15 +114,18 @@ const Login = ({ show, onHide }) => {
                 break;
             case LoginState.VERIFICATION_CODE:
                 await AuthenticationApi.verifyCode(
-                    formData.email,
+                    formData.phone_number,
                     formData.code
                 )
-                    .then(onClose)
+                    .then(() => {
+                        setLoginState(LoginState.SIGNUP);
+                    })
                     .catch(() => {
                         let newErrors = { ...errors };
                         newErrors.code = "Invalid code";
                         setErrors(newErrors);
                     });
+                //
                 break;
             default:
                 break;
@@ -115,13 +134,16 @@ const Login = ({ show, onHide }) => {
 
     function validateNationalCode(nationalCode) {
         if (!/^\d{10}$/.test(nationalCode)) return false;
-    
+
         const check = parseInt(nationalCode[9]);
         const sum = nationalCode
             .slice(0, 9)
-            .split('')
-            .reduce((acc, digit, index) => acc + parseInt(digit) * (10 - index), 0);
-    
+            .split("")
+            .reduce(
+                (acc, digit, index) => acc + parseInt(digit) * (10 - index),
+                0
+            );
+
         const remainder = sum % 11;
         return remainder < 2 ? check === remainder : check === 11 - remainder;
     }
@@ -144,8 +166,8 @@ const Login = ({ show, onHide }) => {
                     ? "Email is invalid"
                     : "";
                 break;
-            case "mobile_number":
-                newErrors.mobile_number = !/^(\+98|0)?9\d{9}$/.test(value) // Matches +989xxxxxxxx or 09xxxxxxxx
+            case "phone_number":
+                newErrors.phone_number = !/^(\+98|0)?9\d{9}$/.test(value) // Matches +989xxxxxxxx or 09xxxxxxxx
                     ? "Phone number is invalid"
                     : "";
                 break;
@@ -164,14 +186,14 @@ const Login = ({ show, onHide }) => {
         setErrors({});
         setFormData({
             password: "",
-            mobile_number: "",
+            phone_number: "",
             nationalCode: "",
             email: "",
             firstName: "",
             lastName: "",
             passwordRepeat: "",
             verifyCode: "",
-            verified_contact: "email",
+            date_of_birth: "1-1-1",
         });
         setTouch({});
     };
@@ -188,7 +210,7 @@ const Login = ({ show, onHide }) => {
                 startTimer();
             })
             .catch(() => {});
-    }
+    };
 
     return (
         <Modal show={show} onHide={onClose} fullscreen="md-down" centered>
@@ -206,20 +228,21 @@ const Login = ({ show, onHide }) => {
                                 <Form.Control
                                     type="tel"
                                     placeholder="Phone Number"
-                                    name="mobile_number"
-                                    value={formData.mobile_number}
-                                    isValid={touch.mobile_number && !errors.mobile_number}
-                                    isInvalid={!!errors.mobile_number}
+                                    name="phone_number"
+                                    value={formData.phone_number}
+                                    isValid={
+                                        touch.phone_number &&
+                                        !errors.phone_number
+                                    }
+                                    isInvalid={!!errors.phone_number}
                                     onChange={handleChange}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
-                                    {errors.mobile_number}
+                                    {errors.phone_number}
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </>
-
-                        
                     )}
 
                     {loginState === LoginState.VERIFICATION_CODE && (
@@ -245,16 +268,35 @@ const Login = ({ show, onHide }) => {
                             <p className="mb-0">
                                 {isCounting ? (
                                     <span>
-                                        Resend code in <strong>{timer}</strong> seconds
+                                        Resend code in <strong>{timer}</strong>{" "}
+                                        seconds
                                     </span>
                                 ) : (
                                     "Didn't receive the code?"
                                 )}
                             </p>
                             {!isCounting && (
-                                <Stack direction="horizontal" className="col-md-8 mx-auto">
-                                    <Button variant="secondary" onClick={resendCode}>Resend Code</Button>
-                                    <Button variant="secondary" onClick={() => {setLoginState(LoginState.VERIFICATION_CONTACT)}} className="ms-auto">Change Phone Number</Button>
+                                <Stack
+                                    direction="horizontal"
+                                    className="col-md-8 mx-auto"
+                                >
+                                    <Button
+                                        variant="secondary"
+                                        onClick={resendCode}
+                                    >
+                                        Resend Code
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => {
+                                            setLoginState(
+                                                LoginState.VERIFICATION_CONTACT
+                                            );
+                                        }}
+                                        className="ms-auto"
+                                    >
+                                        Change Phone Number
+                                    </Button>
                                 </Stack>
                             )}
                         </>
@@ -267,10 +309,13 @@ const Login = ({ show, onHide }) => {
                                 <Form.Control
                                     type="tel"
                                     placeholder="Phone Number"
-                                    name="mobile_number"
-                                    value={formData.mobile_number}
-                                    isValid={touch.mobile_number && !errors.mobile_number}
-                                    isInvalid={!!errors.mobile_number}
+                                    name="phone_number"
+                                    value={formData.phone_number}
+                                    isValid={
+                                        touch.phone_number &&
+                                        !errors.phone_number
+                                    }
+                                    isInvalid={!!errors.phone_number}
                                     onChange={handleChange}
                                     required
                                 />
@@ -347,7 +392,10 @@ const Login = ({ show, onHide }) => {
                                     name="passwordRepeat"
                                     value={formData.passwordRepeat}
                                     onChange={handleChange}
-                                    isValid={touch.passwordRepeat && !errors.passwordRepeat}
+                                    isValid={
+                                        touch.passwordRepeat &&
+                                        !errors.passwordRepeat
+                                    }
                                     isInvalid={!!errors.passwordRepeat}
                                     required
                                 />
@@ -387,8 +435,11 @@ const Login = ({ show, onHide }) => {
                                     placeholder="National Code"
                                     name="nationalCode"
                                     value={formData.nationalCode}
-                                    onChange={handleChange} 
-                                    isValid={touch.nationalCode && !errors.nationalCode}
+                                    onChange={handleChange}
+                                    isValid={
+                                        touch.nationalCode &&
+                                        !errors.nationalCode
+                                    }
                                     isInvalid={!!errors.nationalCode}
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -396,6 +447,11 @@ const Login = ({ show, onHide }) => {
                                 </Form.Control.Feedback>
                             </Form.Group>
 
+                            {showAlert && (
+                                <Alert show={showAlert} variant="success">
+                                    <p>Successfully Signed In</p>
+                                </Alert>
+                            )}
                         </>
                     )}
 
