@@ -283,8 +283,6 @@ const Login = ({ show, onHide }) => {
                                     placeholder="Password"
                                     name="password"
                                     value={formData.password}
-                                    isValid={touch.password && !errors.password}
-                                    isInvalid={!!errors.password}
                                     onChange={handleChange}
                                     required
                                 />
