@@ -64,13 +64,17 @@ export const AuthenticationApi = {
     },
     signup: async (formData) => {
         try {
-            const response = await api.post("/auth/register/customer/", {
+            const response = await api.post("/auth/register/provider/", {
                 first_name: formData.firstName,
                 last_name: formData.lastName,
                 phone_number: formData.phone_number,
                 email: formData.email,
                 national_id: formData.nationalCode,
                 password: formData.password,
+                business_name: formData.businessName,
+                business_address: formData.businessAddress,
+                business_contact: formData.businessPhone,
+                website_url: formData.businessWebsite,
             });
             return response.data;
         } catch (error) {

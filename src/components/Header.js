@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Navbar, Nav, Button, Container } from "react-bootstrap";
 import Login from "./Login";
+import { useNavigate } from "react-router-dom";
 import "../styles/Header.css";
 
 const Header = () => {
     const { isAuthenticated, user, logout } = useContext(AuthContext);
     const [showLoginSignup, setShowLoginSignup] = React.useState(false);
+    const navigate = useNavigate();
 
     return (
         <>
@@ -22,18 +24,19 @@ const Header = () => {
                             {isAuthenticated ? (
                                 <>
                                     <Button
-                                        variant="outline-light"
+                                        variant="primary"
                                         className="me-2"
                                         onClick={() => {
-                                            // Navigate to profile page
+                                            navigate("/profile");
                                         }}
                                     >
-                                        {user.first_name}
+                                        Profile
                                     </Button>
                                     <Button
-                                        variant="outline-light"
+                                        variant="primary"
                                         onClick={() => {
-                                            logout()
+                                            navigate("/");
+                                            logout();
                                         }}
                                     >
                                         Logout

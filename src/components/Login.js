@@ -15,7 +15,11 @@ const LoginState = {
 const Login = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
     const { login, signup, loading } = useContext(AuthContext);
-    const [showAlert, setShowAlert] = useState(false);
+    const [alert, setAlert] = useState({
+        shouldShow: false,
+        variant: "success",
+        message: "successfully signed up!",
+    });
 
     const [formData, setFormData] = useState({
         password: "",
@@ -26,8 +30,11 @@ const Login = ({ show, onHide }) => {
         lastName: "",
         passwordRepeat: "",
         verifyCode: "",
-        verified_contact: "email",
-        date_of_birth: "1-1-1",
+        birthDate: "",
+        businessName: "",
+        businessAddress: "",
+        businessPhone: "",
+        businessWebsite: "",
     });
 
     const [touch, setTouch] = useState({});
@@ -83,24 +90,33 @@ const Login = ({ show, onHide }) => {
             case LoginState.SIGNUP:
                 await signup(formData)
                     .then(() => {
-                        setShowAlert(true);
+                        setAlert({
+                            shouldShow: true,
+                            variant: "success",
+                            message: "successfully signed up!",
+                        });
                         setTimeout(() => {
-                            setShowAlert(false);
+                            setAlert({
+                                shouldShow: false,
+                                variant: "success",
+                                message: "successfully signed up!",
+                            });
                             resetState();
                             setLoginState(LoginState.LOGIN);
-                        }, 1000);
+                        }, 1500);
                     })
                     .catch(() => {
-                        let newErrors = { ...errors };
-                        newErrors.phone_number = "Invalid username or password";
-                        newErrors.password = "Invalid username or password";
-                        setErrors(newErrors);
+                        setAlert({
+                            shouldShow: true,
+                            variant: "danger",
+                            message:
+                                "This phone number already has an account!",
+                        });
                     });
 
                 break;
             case LoginState.VERIFICATION_CONTACT:
                 if (errors.phone_number === "") {
-                    // setLoginState(LoginState.VERIFICATION_CODE);
                     await AuthenticationApi.sendVerificationCode(
                         formData.phone_number
                     )
@@ -171,6 +187,11 @@ const Login = ({ show, onHide }) => {
                     ? "Phone number is invalid"
                     : "";
                 break;
+            case "businessPhone":
+                newErrors.phone_number = !/^\d{9}$/.test(value)
+                    ? "Phone number is invalid"
+                    : "";
+                break;
             case "nationalCode":
                 newErrors.nationalCode = !validateNationalCode(value)
                     ? "National Code is invalid"
@@ -193,7 +214,14 @@ const Login = ({ show, onHide }) => {
             lastName: "",
             passwordRepeat: "",
             verifyCode: "",
-            date_of_birth: "1-1-1",
+            birthDate: "",
+            businessName: "",
+            businessAddress: "",
+            businessPhone: "",
+            businessWebsite: "",
+        });
+        setAlert({
+            shouldShow: false,
         });
         setTouch({});
     };
@@ -249,7 +277,8 @@ const Login = ({ show, onHide }) => {
                         <>
                             <Form.Group controlId="Code">
                                 <Form.Label>
-                                    Enter the code sent to you
+                                    Enter the code sent to{" "}
+                                    {formData.phone_number}
                                 </Form.Label>
                                 <Form.Control
                                     type="text"
@@ -265,40 +294,33 @@ const Login = ({ show, onHide }) => {
                                     {errors.code}
                                 </Form.Control.Feedback>
                             </Form.Group>
-                            <p className="mb-0">
-                                {isCounting ? (
-                                    <span>
-                                        Resend code in <strong>{timer}</strong>{" "}
-                                        seconds
-                                    </span>
-                                ) : (
-                                    "Didn't receive the code?"
-                                )}
-                            </p>
-                            {!isCounting && (
-                                <Stack
-                                    direction="horizontal"
-                                    className="col-md-8 mx-auto"
+                            <div className="login-options">
+                                <>
+                                    <p className="mb-0">
+                                        {isCounting ? (
+                                            <span>
+                                                Resend code in {timer} seconds
+                                            </span>
+                                        ) : (
+                                            "Didn't receive the code?"
+                                        )}
+                                    </p>
+                                    {!isCounting && (
+                                        <Link onClick={resendCode}>
+                                            Resend Code
+                                        </Link>
+                                    )}
+                                </>
+                                <Link
+                                    onClick={() => {
+                                        setLoginState(
+                                            LoginState.VERIFICATION_CONTACT
+                                        );
+                                    }}
                                 >
-                                    <Button
-                                        variant="secondary"
-                                        onClick={resendCode}
-                                    >
-                                        Resend Code
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setLoginState(
-                                                LoginState.VERIFICATION_CONTACT
-                                            );
-                                        }}
-                                        className="ms-auto"
-                                    >
-                                        Change Phone Number
-                                    </Button>
-                                </Stack>
-                            )}
+                                    Change Phone Number
+                                </Link>
+                            </div>
                         </>
                     )}
 
@@ -404,7 +426,7 @@ const Login = ({ show, onHide }) => {
                                 </Form.Control.Feedback>
                             </Form.Group>
 
-                            <Row>
+                            {/* <Row>
                                 <Form.Group as={Col} controlId="FirstName">
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
@@ -426,7 +448,17 @@ const Login = ({ show, onHide }) => {
                                         onChange={handleChange}
                                     />
                                 </Form.Group>
-                            </Row>
+                            </Row> */}
+                            <Form.Group controlId="BusinessName">
+                                <Form.Label>Business Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Business Name"
+                                    name="businessName"
+                                    value={formData.businessName}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
 
                             <Form.Group controlId="NationalCode">
                                 <Form.Label>National Code</Form.Label>
@@ -447,9 +479,57 @@ const Login = ({ show, onHide }) => {
                                 </Form.Control.Feedback>
                             </Form.Group>
 
-                            {showAlert && (
-                                <Alert show={showAlert} variant="success">
-                                    <p>Successfully Signed In</p>
+                            <Form.Group controlId="BirthDate">
+                                <Form.Label>Date of Birth</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    name="birthDate"
+                                    value={formData.birthDate}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group controlId="BusinessAddress">
+                                <Form.Label>Business Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="businessAddress"
+                                    placeholder="Business Address"
+                                    value={formData.businessAddress}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+
+                            <Form.Group controlId="BusinessPhone">
+                                <Form.Label>Business Contact Phone</Form.Label>
+                                <Form.Control
+                                    type="tell"
+                                    name="businessPhone"
+                                    placeholder="Business Contact"
+                                    value={formData.businessPhone}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group controlId="BusinessWebsite">
+                                <Form.Label>Business URL</Form.Label>
+                                <Form.Control
+                                    type="url"
+                                    placeholder="Business Website"
+                                    name="businessWebsite"
+                                    value={formData.businessWebsite}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+
+                            {alert.shouldShow && (
+                                <Alert
+                                    show={alert.shouldShow}
+                                    variant={alert.variant}
+                                >
+                                    {alert.message}
                                 </Alert>
                             )}
                         </>
