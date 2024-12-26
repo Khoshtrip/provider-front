@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
-import "../styles/Login.css";
+import { AuthContext } from "../../context/AuthContext";
+import "../../styles/core/Login.css";
 import { Form, Modal, Button, Col, Row, Stack, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { AuthenticationApi } from "../apis/AuthenticationApi";
+import { AuthenticationApi } from "../../apis/AuthenticationApi";
 
 const LoginState = {
     LOGIN: "login",
@@ -12,7 +12,7 @@ const LoginState = {
     VERIFICATION_CONTACT: "verification_contact",
 };
 
-const Login = ({ show, onHide }) => {
+const LoginModal = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
     const { login, signup, loading } = useContext(AuthContext);
     const [alert, setAlert] = useState({
@@ -566,4 +566,4 @@ const Login = ({ show, onHide }) => {
     );
 };
 
-export default Login;
+export default LoginModal;

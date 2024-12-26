@@ -1,28 +1,21 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { Navbar, Nav, Button, Container } from "react-bootstrap";
-import Login from "./Login";
+import LoginModal from "./LoginModal";
 import { useNavigate } from "react-router-dom";
-import "../styles/Header.css";
+import "../../styles/core/Header.css";
 
-const AuthenticationButtons = ({ isAuthenticated, setShowLoginSignup }) => {
+const AuthenticationButtons = ({
+    isAuthenticated,
+    setShowLoginSignup,
+    logout,
+}) => {
     const navigate = useNavigate();
-    const { logout } = useContext(AuthContext);
     return isAuthenticated ? (
         <>
             <Button
-                variant="outline-primary"
-                className="me-2 on-primary border-on-primary"
-                onClick={() => {
-                    navigate("/profile");
-                }}
-            >
-                Profile
-            </Button>
-            <Button
-                variant="primary"
-                className="on-primary border-on-primary"
+                variant="outline-secondary"
                 onClick={() => {
                     navigate("/");
                     logout();
@@ -33,12 +26,40 @@ const AuthenticationButtons = ({ isAuthenticated, setShowLoginSignup }) => {
         </>
     ) : (
         <Button
-            variant="outline-primary"
+            variant="outline-secondary"
             onClick={() => setShowLoginSignup(true)}
-            className="on-primary border-on-primary"
         >
             Login
         </Button>
+    );
+};
+
+const HeaderTabs = ({ isAuthenticated }) => {
+    return (
+        <>
+            <Nav.Link href="/" className="on-primary">
+                Home
+            </Nav.Link>
+            <Nav.Link href="/blog" className="on-primary">
+                Blog
+            </Nav.Link>
+            <Nav.Link href="/products" className="on-primary">
+                Products
+            </Nav.Link>
+            <Nav.Link href="/profile" className="on-primary">
+                Profile
+            </Nav.Link>
+            {isAuthenticated && (
+                <>
+                    <Nav.Link href="/products" className="on-primary">
+                        Products
+                    </Nav.Link>
+                    <Nav.Link href="/profile" className="on-primary">
+                        Profile
+                    </Nav.Link>
+                </>
+            )}
+        </>
     );
 };
 
@@ -56,22 +77,18 @@ const Header = () => {
                     <Navbar.Toggle aria-controls="navbar-nav" />
                     <Navbar.Collapse id="navbar-nav">
                         <Nav className="me-auto my-2 my-lg-0">
-                            <Nav.Link href="/" className="on-primary">
-                                Home
-                            </Nav.Link>
-                            <Nav.Link href="/products" className="on-primary">
-                                Products
-                            </Nav.Link>
+                            <HeaderTabs isAuthenticated={isAuthenticated} />
                         </Nav>
                         <AuthenticationButtons
                             isAuthenticated={isAuthenticated}
                             setShowLoginSignup={setShowLoginSignup}
+                            logout={logout}
                         />
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
 
-            <Login
+            <LoginModal
                 show={showLoginSignup}
                 onHide={() => {
                     setShowLoginSignup(false);
