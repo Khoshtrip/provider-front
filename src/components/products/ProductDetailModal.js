@@ -6,28 +6,14 @@ import {
     Button,
     Col,
     Row,
-    Alert,
     Carousel,
     Image,
 } from "react-bootstrap";
 import { ProductCardFixture } from "./ProcuctCard";
-
-// export const ProductCardFixture = {
-//     id: 1,
-//     name: "Product 1",
-//     description: "Product 1 description",
-//     price: 100,
-//     image: [
-//         "https://via.placeholder.com/150",
-//         "https://via.placeholder.com/180",
-//     ],
-//     summary: "Product 1 summary",
-//     stock: 10,
-//     category: "Category 1",
-//     rating: 4.5,
-//     discount: 33,
-//     status: "active",
-// };
+import { ProductsApi } from "../../apis/ProductsApi";
+import { ImagesApi } from "../../apis/ImagesApi";
+import Khoshpinner from "../core/Khoshpinner";
+import { showGlobalAlert } from "../core/KhoshAlert";
 
 const ImageCarousels = ({ images }) => {
     return (
@@ -60,18 +46,56 @@ const ProductModalModes = {
 };
 
 const ProductDetailModal = ({ show, onHide, productId }) => {
-    const [alert, setAlert] = useState({});
     const [backupData, setBackupData] = useState({});
     const [viewMode, setViewMode] = useState(ProductModalModes.VIEW);
     const [productData, setProductData] = useState(ProductCardFixture);
     const [touch, setTouch] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState({
+        CTA: false,
+        fetch: true,
+    });
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        // Get product details.
-    }, []);
-    const onDeleteProduct = async (productId) => {};
+        const fetchProduct = async () => {
+            try {
+                setIsLoading({ ...isLoading, fetch: true });
+                const product = await ProductsApi.getProductById(productId);
+                setProductData(product);
+            } catch (error) {
+                setIsLoading({ ...isLoading, fetch: false });
+                showGlobalAlert({
+                    variant: "danger",
+                    message: "Error fetching product",
+                });
+            } finally {
+                setIsLoading({ ...isLoading, fetch: false });
+            }
+        };
+        fetchProduct();
+    }, [show]);
+
+    const onDeleteProduct = async (productId) => {
+        try {
+            setIsLoading({ ...isLoading, CTA: true });
+            await ProductsApi.deleteProduct(productId);
+            showGlobalAlert({
+                variant: "success",
+                message: "Product deleted successfully",
+            });
+            setTimeout(() => {
+                onHide();
+            }, 2000);
+        } catch (error) {
+            setIsLoading({ ...isLoading, CTA: false });
+            showGlobalAlert({
+                variant: "danger",
+                message: "Error deleting product",
+            });
+        } finally {
+            setIsLoading({ ...isLoading, CTA: false });
+        }
+    };
 
     const handleChange = (e) => {
         const value = e.target.value.replace(/[۰-۹]/g, (d) =>
@@ -84,14 +108,44 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading({ ...isLoading, CTA: true });
         const { selectedImages } = productData;
         if (selectedImages && selectedImages.length > 0) {
             const formData = new FormData();
             selectedImages.forEach((image) => {
                 formData.append("file", image);
             });
-            //Upload
+            await ImagesApi.uploadImage(formData)
+                .then(() => {
+                    showGlobalAlert({
+                        variant: "success",
+                        message: "Images uploaded successfully",
+                    });
+                })
+                .catch((error) => {
+                    showGlobalAlert({
+                        variant: "danger",
+                        message: "Error uploading product",
+                    });
+                });
         }
+        if (backupData !== productData) {
+            await ProductsApi.updateProduct(productId, productData)
+                .then(() => {
+                    showGlobalAlert({
+                        variant: "success",
+                        message: "Product updated successfully",
+                    });
+                })
+                .catch((error) => {
+                    showGlobalAlert({
+                        shouldShow: true,
+                        variant: "danger",
+                        message: "Error updating product",
+                    });
+                });
+        }
+        setIsLoading({ ...isLoading, CTA: false });
     };
 
     const validateField = (fieldName, value) => {
@@ -146,7 +200,6 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
 
     const resetState = () => {
         setErrors({});
-        setAlert({});
         setTouch({});
         setViewMode(ProductModalModes.VIEW);
     };
@@ -161,192 +214,215 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
             <Modal.Header closeButton>
                 <Modal.Title>Product Details</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <ImageCarousels images={productData.images} />
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group controlId="Name" as={Row}>
-                        <Form.Label column sm="2">
-                            Name
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                type="text"
-                                name="name"
-                                value={productData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Col>
-                    </Form.Group>
+            {!isLoading.fetch && (
+                <Modal.Body>
+                    <ImageCarousels images={productData.images} />
 
-                    <Form.Group controlId="Description" as={Row}>
-                        <Form.Label column sm="2">
-                            Description
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                type="text"
-                                name="description"
-                                value={productData.description}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Col>
-                    </Form.Group>
-
-                    <Form.Group controlId="Price" as={Row}>
-                        <Form.Label column sm="2">
-                            Price
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                type="text"
-                                name="price"
-                                value={productData.price}
-                                onChange={handleChange}
-                                isValid={touch.price && !errors.price}
-                                isInvalid={!!errors.price}
-                                required
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.price}
-                            </Form.Control.Feedback>
-                        </Col>
-                    </Form.Group>
-
-                    <Form.Group controlId="Discount" as={Row}>
-                        <Form.Label column sm="2">
-                            Discount
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                type="text"
-                                name="discount"
-                                value={productData.discount}
-                                onChange={handleChange}
-                                isValid={touch.discount && !errors.discount}
-                                isInvalid={!!errors.discount}
-                                required
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.discount}
-                            </Form.Control.Feedback>
-                        </Col>
-                    </Form.Group>
-
-                    <Form.Group controlId="Category" as={Row}>
-                        <Form.Label column sm="2">
-                            Category
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                type="text"
-                                name="category"
-                                value={productData.category}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Col>
-                    </Form.Group>
-
-                    <Form.Group controlId="Summary" as={Row}>
-                        <Form.Label column sm="2">
-                            Summary
-                        </Form.Label>
-                        <Col sm="10">
-                            <Form.Control
-                                plaintext={viewMode === ProductModalModes.VIEW}
-                                readOnly={viewMode === ProductModalModes.VIEW}
-                                as="textarea"
-                                rows={3}
-                                name="summary"
-                                value={productData.summary}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Col>
-                    </Form.Group>
-                    {viewMode === ProductModalModes.EDIT && (
-                        <Form.Group controlId="SelectedImages" as={Row}>
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Group controlId="Name" as={Row}>
                             <Form.Label column sm="2">
-                                Select Photos
+                                Name
                             </Form.Label>
                             <Col sm="10">
                                 <Form.Control
-                                    type="file"
-                                    name="selectedImages"
-                                    value={productData.selectedImages}
-                                    accept=".png,.jpg,.jpeg"
-                                    onChange={handleChange}
-                                    multiple
-                                    isValid={
-                                        touch.selectedImages &&
-                                        !errors.selectedImages
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
                                     }
-                                    isInvalid={!!errors.selectedImages}
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    type="text"
+                                    name="name"
+                                    value={productData.name}
+                                    onChange={handleChange}
+                                    required
                                 />
                             </Col>
-                            <Form.Control.Feedback type="invalid">
-                                {errors.selectedImages}
-                            </Form.Control.Feedback>
                         </Form.Group>
-                    )}
 
-                    {/* {alert.shouldShow && (
-                        <Alert show={alert.shouldShow} variant={alert.variant}>
-                            {alert.message}
-                        </Alert>
-                    )} */}
-                </Form>
+                        <Form.Group controlId="Description" as={Row}>
+                            <Form.Label column sm="2">
+                                Description
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Control
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    type="text"
+                                    name="description"
+                                    value={productData.description}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Col>
+                        </Form.Group>
 
-                <Modal.Footer as={Row}>
-                    {viewMode === ProductModalModes.EDIT ? (
-                        <>
-                            <Button variant="outline-success" type="submit">
-                                Save
-                            </Button>
+                        <Form.Group controlId="Price" as={Row}>
+                            <Form.Label column sm="2">
+                                Price
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Control
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    type="text"
+                                    name="price"
+                                    value={productData.price}
+                                    onChange={handleChange}
+                                    isValid={touch.price && !errors.price}
+                                    isInvalid={!!errors.price}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.price}
+                                </Form.Control.Feedback>
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group controlId="Discount" as={Row}>
+                            <Form.Label column sm="2">
+                                Discount
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Control
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    type="text"
+                                    name="discount"
+                                    value={productData.discount}
+                                    onChange={handleChange}
+                                    isValid={touch.discount && !errors.discount}
+                                    isInvalid={!!errors.discount}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.discount}
+                                </Form.Control.Feedback>
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group controlId="Category" as={Row}>
+                            <Form.Label column sm="2">
+                                Category
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Control
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    type="text"
+                                    name="category"
+                                    value={productData.category}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group controlId="Summary" as={Row}>
+                            <Form.Label column sm="2">
+                                Summary
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Control
+                                    plaintext={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    readOnly={
+                                        viewMode === ProductModalModes.VIEW
+                                    }
+                                    as="textarea"
+                                    rows={3}
+                                    name="summary"
+                                    value={productData.summary}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Col>
+                        </Form.Group>
+
+                        {viewMode === ProductModalModes.EDIT && (
+                            <Form.Group controlId="SelectedImages" as={Row}>
+                                <Form.Label column sm="2">
+                                    Select Photos
+                                </Form.Label>
+                                <Col sm="10">
+                                    <Form.Control
+                                        type="file"
+                                        name="selectedImages"
+                                        value={productData.selectedImages}
+                                        accept=".png,.jpg,.jpeg"
+                                        onChange={handleChange}
+                                        multiple
+                                        isValid={
+                                            touch.selectedImages &&
+                                            !errors.selectedImages
+                                        }
+                                        isInvalid={!!errors.selectedImages}
+                                    />
+                                </Col>
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.selectedImages}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        )}
+                    </Form>
+
+                    <Modal.Footer as={Row}>
+                        {viewMode === ProductModalModes.EDIT ? (
+                            <>
+                                <Button variant="outline-success" type="submit">
+                                    Save
+                                </Button>
+                                <Button
+                                    variant="outline-primary"
+                                    onClick={() => {
+                                        onClose();
+                                        setProductData(backupData);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+
+                                <Button
+                                    variant="outline-danger"
+                                    onClick={() => {
+                                        onDeleteProduct(productData.id);
+                                    }}
+                                >
+                                    Delete Product
+                                </Button>
+                            </>
+                        ) : (
                             <Button
                                 variant="outline-primary"
                                 onClick={() => {
-                                    onClose();
-                                    setProductData(backupData);
+                                    setViewMode(ProductModalModes.EDIT);
+                                    setBackupData(productData);
                                 }}
                             >
-                                Cancel
+                                Edit
                             </Button>
-
-                            <Button
-                                variant="outline-danger"
-                                onClick={() => {
-                                    onDeleteProduct(productData.id);
-                                }}
-                            >
-                                Delete Product
-                            </Button>
-                        </>
-                    ) : (
-                        <Button
-                            variant="outline-primary"
-                            onClick={() => {
-                                setViewMode(ProductModalModes.EDIT);
-                                setBackupData(productData);
-                            }}
-                        >
-                            Edit
-                        </Button>
-                    )}
-                </Modal.Footer>
-            </Modal.Body>
+                        )}
+                    </Modal.Footer>
+                </Modal.Body>
+            )}
+            {isLoading.fetch && <Khoshpinner />}
         </Modal>
     );
 };

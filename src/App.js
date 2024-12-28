@@ -5,10 +5,12 @@ import MainPage from "./pages/MainPage";
 import Profile from "./pages/Profile";
 import "./styles/global.scss";
 import Products from "./pages/Products";
+import KhoshAlert from "./components/core/KhoshAlert";
 
 function App() {
     return (
         <div className="App">
+            <KhoshAlert />
             <Header />
             <Routes>
                 <Route path="/" element={<MainPage />} />

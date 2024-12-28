@@ -7,6 +7,7 @@ import {
     Col,
     Row,
 } from "react-bootstrap";
+import { ProductsApi } from "../../apis/ProductsApi";
 
 export const ProductCardFixture = {
     id: 1,
@@ -25,15 +26,32 @@ export const ProductCardFixture = {
     status: "active",
 };
 
-export const ProductCard = ({
-    product,
-    onProductClick,
-    onChangeStatusClick,
-}) => {
+export const ProductCard = ({ product, onProductClick }) => {
     const newPrice =
         product.discount > 0
             ? product.price * (1 - product.discount / 100)
             : product.price;
+
+    const onChangeStatusClick = (productId, status) => {
+        if (status === "deactive") {
+            ProductsApi.activateProduct(productId)
+                .then((response) => {
+                    console.log("Activate product with ID:", productId);
+                })
+                .catch((error) => {
+                    console.error("Error activating product:", error);
+                });
+        } else {
+            ProductsApi.deactivateProduct(productId)
+                .then((response) => {
+                    console.log("Deactivate product with ID:", productId);
+                })
+                .catch((error) => {
+                    console.error("Error deactivating product:", error);
+                });
+        }
+    };
+
     return (
         <Card
             style={{ width: "18rem", cursor: "pointer" }}
@@ -45,8 +63,8 @@ export const ProductCard = ({
                     src={product.images[0]}
                     sizes="(max-width: 600px) 150px"
                 />
-               
             )}
+            
             <Card.Body>
                 <Card.Title>{product.name}</Card.Title>
                 <Card.Text>{product.description}</Card.Text>
@@ -93,12 +111,12 @@ export const ProductCard = ({
                     </Col>
                     <Col>
                         <Button
-                            disabled={product.status === "deactive"}
                             className="ms-5"
                             size="sm"
-                            onClick={() =>
-                                onChangeStatusClick(product.id, product.status)
-                            }
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                onChangeStatusClick(product.id, product.status);
+                            }}
                         >
                             {product.status === "deactive"
                                 ? "Ativate"

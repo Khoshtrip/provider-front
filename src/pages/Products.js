@@ -1,6 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Row, Col, Stack, Container, Pagination } from "react-bootstrap";
+import {
+    Row,
+    Col,
+    Stack,
+    Container,
+    Pagination,
+    Form,
+    Button,
+    Collapse,
+    InputGroup,
+} from "react-bootstrap";
 import "../styles/products/Products.css";
 
 import {
@@ -8,14 +18,8 @@ import {
     ProductCard,
 } from "../components/products/ProcuctCard";
 import ProductDetailModal from "../components/products/ProductDetailModal";
-
-function chunkArray(array, chunkSize) {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        chunks.push(array.slice(i, i + chunkSize));
-    }
-    return chunks;
-}
+import ProductsHeader from "../components/products/ProductsHeader";
+import CreateProductModal from "../components/products/CreateProdcutModal";
 
 const PaginationItems = ({ onPageClick, pageCount }) => {
     const items = [];
@@ -67,30 +71,47 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
 
 const Products = () => {
     const { user } = useContext(AuthContext);
-    const [showModal, setShowModal] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [filters, setFilters] = useState({});
+    const [products, setProducts] = useState([
+        ProductCardFixture,
+        ProductCardFixture,
+        ProductCardFixture,
+        ProductCardFixture,
+        ProductCardFixture,
+        ProductCardFixture,
+        ProductCardFixture,
+    ]);
 
-    const products = [
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-    ];
+    const onFilterChange = (filters) => {
+        setFilters(filters);
+    };
 
     return (
         <>
             <Container className="d-flex flex-column justify-content-center align-items-center mt-4 mb-2">
+                <ProductsHeader
+                    className="d-flex flex-column"
+                    onAddNewProductClick={() => {
+                        setShowCreateModal(true);
+                    }}
+                    onFilterChange={onFilterChange}
+                />
                 <Row className="mb-3 justify-content-mx-center" md="auto">
                     {products.map((product, index) => (
                         <Col key={index} className="mb-3">
                             <ProductCard
                                 product={product}
-                                onProductClick={(id) => setShowModal(true)}
+                                onProductClick={(id) =>
+                                    setShowDetailModal(true)
+                                }
                             />
                         </Col>
                     ))}
+                    {products.length === 0 && (
+                        <h1 className="text-center">No products found</h1>
+                    )}
                 </Row>
                 <PaginationItems
                     onPageClick={(page) => console.log(page)}
@@ -99,8 +120,12 @@ const Products = () => {
                 />
             </Container>
             <ProductDetailModal
-                show={showModal}
-                onHide={() => setShowModal(false)}
+                show={showDetailModal}
+                onHide={() => setShowDetailModal(false)}
+            />
+            <CreateProductModal
+                show={showCreateModal}
+                onHide={() => setShowCreateModal(false)}
             />
         </>
     );
