@@ -31,25 +31,23 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
         try {
             const response = await AuthenticationApi.fetchUser();
-            console.log(response);
-            if (response.role !== "provider") {
+            if (response.data.role !== "provider") {
                 throw new Exception("You are not a provider!");
             }
 
             setUser({
-                email: response.email,
-                phoneNumber: response.phone_number,
-                firstName: response.first_name,
-                lastName: response.last_name,
-                nationalId: response.national_id,
-                dateJoined: response.date_joined,
-                role: response.role,
-                businessName: response.business_name,
-                businessAddress: response.business_address,
-                businessPhone: response.business_phone,
-                businessWebsite: response.website_url,
+                email: response.data.email,
+                phoneNumber: response.data.phone_number,
+                firstName: response.data.first_name,
+                lastName: response.data.last_name,
+                nationalId: response.data.national_id,
+                dateJoined: response.data.date_joined,
+                role: response.data.role,
+                businessName: response.data.business_name,
+                businessAddress: response.data.business_address,
+                businessPhone: response.data.business_phone,
+                businessWebsite: response.data.website_url,
             });
-            console.log(response);
             setIsAuthenticated(true);
         } catch (error) {
             throw error;
@@ -61,12 +59,11 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         try {
             const response = await AuthenticationApi.login(username, password);
-            localStorage.setItem("access", response.access);
-            localStorage.setItem("refresh", response.refresh);
-            console.log(response);
+            localStorage.setItem("access", response.data.access);
+            localStorage.setItem("refresh", response.data.refresh);
             api.defaults.headers.common[
                 "Authorization"
-            ] = `Bearer ${response.access}`;
+            ] = `Bearer ${response.data.access}`;
             await fetchUser();
         } catch (error) {
             console.error("Login error:", error);
