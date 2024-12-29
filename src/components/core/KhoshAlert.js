@@ -25,14 +25,16 @@ const KhoshAlert = () => {
     }, [alertConfig]);
 
     showGlobalAlert = (config) => {
-        setAlertConfig({
-            show: true,
-            variant: config.variant || "primary",
-            duration: config.duration || 2000,
-            message: config.message || "",
-            title: config.title || "",
-            footer: config.footer || "",
-        });
+        if (!config || (!config.message && !config.title && !config.footer)) {
+            setAlertConfig({
+                show: true,
+                variant: config.variant || "primary",
+                duration: config.duration || 2000,
+                message: config.message || "",
+                title: config.title || "",
+                footer: config.footer || "",
+            });
+        }
     };
 
     return (

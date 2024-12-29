@@ -1,22 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import {
-    Row,
-    Col,
-    Container,
-    Pagination,
-} from "react-bootstrap";
-import "../styles/products/Products.css";
-
-import {
-    ProductCardFixture,
-    ProductCard,
-} from "../components/products/ProcuctCard";
+import { Row, Col, Container, Pagination } from "react-bootstrap";
+import { ProductCard } from "../components/products/ProcuctCard";
 import ProductDetailModal from "../components/products/ProductDetailModal";
 import ProductsHeader from "../components/products/ProductsHeader";
 import CreateProductModal from "../components/products/CreateProdcutModal";
 import { ProductsApi } from "../apis/ProductsApi";
-import { showGlobalAlert } from "../components/core/KhoshAlert";
+import KhoshAlert, { showGlobalAlert } from "../components/core/KhoshAlert";
+import "../styles/products/Products.css";
+import Khoshpinner from "../components/core/Khoshpinner";
 
 const PaginationItems = ({ onPageClick, pageCount }) => {
     const items = [];
@@ -74,17 +66,18 @@ const Products = () => {
     const [products, setProducts] = useState([]);
     const [npages, setNpages] = useState(1);
     const [limit, setLimit] = useState(10);
-    
+    const [isLoading, setIsLoading] = useState(false);
 
     const onFilterChange = (filters) => {
         setFilters(filters);
     };
 
     const fetchProducts = async (page) => {
+        setIsLoading(true);
         await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
             .then((response) => {
                 setProducts(response.products);
-                setNpages(Math.floor(response.total / response.limit + 1))
+                setNpages(Math.floor(response.total / response.limit + 1));
             })
             .catch((error) => {
                 // TODO: change to display message better
@@ -92,12 +85,15 @@ const Products = () => {
                     variant: "danger",
                     message: "Error uploading product",
                 });
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-    }
+    };
 
     useEffect(() => {
         fetchProducts(1);
-    }, [filters]);
+    }, []);
 
     return (
         <>
@@ -108,24 +104,40 @@ const Products = () => {
                         setShowCreateModal(true);
                     }}
                     onFilterChange={onFilterChange}
+                    onApplyFilters={() => {
+                        fetchProducts(1);
+                    }}
                 />
-                <Row className="mb-3 justify-content-mx-center" md="auto">
-                    {products.map((product, index) => (
-                        <Col key={index} className="mb-3">
-                            <ProductCard
-                                product={product}
-                                onProductClick={(id) =>
-                                    setShowDetailModal(true)
-                                }
-                            />
-                        </Col>
-                    ))}
-                    {products.length === 0 && (
-                        <h1 className="text-center">No products found</h1>
-                    )}
-                </Row>
+
+                {isLoading && <Khoshpinner />}
+                {!isLoading && (
+                    <>
+                        <Row
+                            className="mb-3 justify-content-mx-center"
+                            md="auto"
+                        >
+                            {products.map((product, index) => (
+                                <Col key={index} className="mb-3">
+                                    <ProductCard
+                                        product={product}
+                                        onProductClick={(id) =>
+                                            setShowDetailModal(true)
+                                        }
+                                    />
+                                </Col>
+                            ))}
+                            {products.length === 0 && (
+                                <h1 className="text-center">
+                                    No products found
+                                </h1>
+                            )}
+                        </Row>
+                    </>
+                )}
                 <PaginationItems
-                    onPageClick={(page) => {fetchProducts(page)}}
+                    onPageClick={(page) => {
+                        fetchProducts(page);
+                    }}
                     pageCount={npages}
                     className="text-center align-items-center"
                 />

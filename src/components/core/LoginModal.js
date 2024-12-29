@@ -209,9 +209,6 @@ const LoginModal = ({ show, onHide }) => {
             businessPhone: "",
             businessWebsite: "",
         });
-        showGlobalAlert({
-            shouldShow: false,
-        });
         setTouch({});
     };
 

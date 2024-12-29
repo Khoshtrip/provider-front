@@ -72,8 +72,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                 setIsLoading({ ...isLoading, fetch: false });
             }
         };
-        if (productId != undefined || productId != null)
-            fetchProduct();
+        if (productId != undefined || productId != null) fetchProduct();
     }, [show]);
 
     const onDeleteProduct = async (productId) => {

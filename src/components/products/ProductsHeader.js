@@ -1,42 +1,51 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-    Row,
-    Col,
-    Stack,
-    Container,
-    Pagination,
-    Form,
-    Button,
-    Collapse,
-    InputGroup,
-} from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Row, Col, Form, Button, Collapse } from "react-bootstrap";
 
-const FilterComponent = ({ showFilters, onFilterChange }) => {
+let kooft = {};
+
+const FilterComponent = ({ showFilters, onFilterChange, onApplyFilters }) => {
     const [filters, setFilters] = useState({
         search: "",
         category: "",
         minPrice: 0,
-        maxPrice: 0,
+        maxPrice: 1000,
         stockAvailable: true,
         isActive: true,
     });
 
     const handleFilterChange = (key, value) => {
-        setFilters((prev) => ({ ...prev, [key]: value }));
-        onFilterChange(filters);
+        if (value === "") {
+            delete kooft[key];
+        }
+        if (key == "minPrice" && value === 0) {
+            delete kooft[key];
+        }
+        if (key == "maxPrice" && value === 1000) {
+            delete kooft[key];
+        }
+
+        kooft[key] = value;
+        onFilterChange(kooft);
+        setFilters({ ...filters, [key]: value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onApplyFilters();
     };
 
     return (
         <>
             <Collapse in={showFilters}>
                 <div className="mb-3 w-100">
-                    <Form>
+                    <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col md={6} className="mb-3">
                                 <Form.Label>Search</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Search "
+                                    name="search"
                                     value={filters.search}
                                     onChange={(e) =>
                                         handleFilterChange(
@@ -98,6 +107,7 @@ const FilterComponent = ({ showFilters, onFilterChange }) => {
                                 <Form.Check
                                     type="checkbox"
                                     label="Stock Available"
+                                    name="stockAvailable"
                                     checked={filters.stockAvailable}
                                     onChange={(e) =>
                                         handleFilterChange(
@@ -109,6 +119,7 @@ const FilterComponent = ({ showFilters, onFilterChange }) => {
                                 <Form.Check
                                     type="checkbox"
                                     label="Is Active"
+                                    name="isActive"
                                     checked={filters.isActive}
                                     onChange={(e) =>
                                         handleFilterChange(
@@ -119,7 +130,7 @@ const FilterComponent = ({ showFilters, onFilterChange }) => {
                                 />
                             </Col>
                             <Col md={6} className="mb-3">
-                                <Button>Search</Button>
+                                <Button type="submit">Search</Button>
                             </Col>
                         </Row>
                     </Form>
@@ -129,7 +140,11 @@ const FilterComponent = ({ showFilters, onFilterChange }) => {
     );
 };
 
-const ProductsHeader = ({ onAddNewProductClick, onFilterChange }) => {
+const ProductsHeader = ({
+    onAddNewProductClick,
+    onFilterChange,
+    onApplyFilters,
+}) => {
     const [showFilters, setShowFilters] = useState(false);
 
     return (
@@ -163,6 +178,7 @@ const ProductsHeader = ({ onAddNewProductClick, onFilterChange }) => {
             <FilterComponent
                 onFilterChange={onFilterChange}
                 showFilters={showFilters}
+                onApplyFilters={onApplyFilters}
             />
         </>
     );
