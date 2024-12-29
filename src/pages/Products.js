@@ -3,13 +3,8 @@ import { AuthContext } from "../context/AuthContext";
 import {
     Row,
     Col,
-    Stack,
     Container,
     Pagination,
-    Form,
-    Button,
-    Collapse,
-    InputGroup,
 } from "react-bootstrap";
 import "../styles/products/Products.css";
 
@@ -20,11 +15,13 @@ import {
 import ProductDetailModal from "../components/products/ProductDetailModal";
 import ProductsHeader from "../components/products/ProductsHeader";
 import CreateProductModal from "../components/products/CreateProdcutModal";
+import { ProductsApi } from "../apis/ProductsApi";
+import { showGlobalAlert } from "../components/core/KhoshAlert";
 
 const PaginationItems = ({ onPageClick, pageCount }) => {
     const items = [];
     const [activePage, setActivePage] = useState(1);
-
+    console.log(pageCount);
     for (
         let number = Math.max(activePage - 3, 1);
         number <= Math.min(activePage + 3, pageCount);
@@ -74,19 +71,33 @@ const Products = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [filters, setFilters] = useState({});
-    const [products, setProducts] = useState([
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-        ProductCardFixture,
-    ]);
+    const [products, setProducts] = useState([]);
+    const [npages, setNpages] = useState(1);
+    const [limit, setLimit] = useState(10);
+    
 
     const onFilterChange = (filters) => {
         setFilters(filters);
     };
+
+    const fetchProducts = async (page) => {
+        await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
+            .then((response) => {
+                setProducts(response.products);
+                setNpages(Math.floor(response.total / response.limit + 1))
+            })
+            .catch((error) => {
+                // TODO: change to display message better
+                showGlobalAlert({
+                    variant: "danger",
+                    message: "Error uploading product",
+                });
+            });
+    }
+
+    useEffect(() => {
+        fetchProducts(1);
+    }, [filters]);
 
     return (
         <>
@@ -114,8 +125,8 @@ const Products = () => {
                     )}
                 </Row>
                 <PaginationItems
-                    onPageClick={(page) => console.log(page)}
-                    pageCount={20}
+                    onPageClick={(page) => {fetchProducts(page)}}
+                    pageCount={npages}
                     className="text-center align-items-center"
                 />
             </Container>

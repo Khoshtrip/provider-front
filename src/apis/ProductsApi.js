@@ -10,9 +10,9 @@ export const ProductsApi = {
             throw error;
         }
     },
-    getProducts: async (filters = {}) => {
+    getProducts: async (filters = {}, offset = 0, limit = 10) => {
         try {
-            const response = await api.get("/product/", { params: filters });
+            const response = await api.get("/products/", { params: {...filters, offset, limit} });
             return response.data;
         } catch (error) {
             console.error("Error fetching products:", error);
