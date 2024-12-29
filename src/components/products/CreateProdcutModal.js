@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../../styles/core/Login.css";
-import { Form, Modal, Button, Col, Row, Alert } from "react-bootstrap";
-import { ProductCardFixture } from "./ProcuctCard";
+import { Form, Modal, Button, Col, Row } from "react-bootstrap";
 import { ProductsApi } from "../../apis/ProductsApi";
 import { ImagesApi } from "../../apis/ImagesApi";
 import Khoshpinner from "../core/Khoshpinner";
@@ -39,11 +38,13 @@ const CreateProductModal = ({ show, onHide }) => {
                     });
                 })
                 .catch((error) => {
+                    // TODO: change to display message better
                     showGlobalAlert({
                         variant: "danger",
                         message: "Error uploading product",
                     });
                 });
+
         }
         await ProductsApi.createProduct(productData)
             .then(() => {
@@ -58,20 +59,14 @@ const CreateProductModal = ({ show, onHide }) => {
                     message: "Error updating product",
                 });
             });
-        setIsLoading({ ...isLoading, CTA: false });
+        setIsLoading(false);
     };
 
     const validateField = (fieldName, value) => {
         let newErrors = { ...errors };
         switch (fieldName) {
-            case "password":
-                newErrors.password =
-                    value.length < 6
-                        ? "Password must be at least 6 characters long"
-                        : "";
-                break;
             case "price":
-                newErrors.password = isNaN(value)
+                newErrors.price = isNaN(value)
                     ? "Price must be a number"
                     : value < 0 ||
                       value > 1000000 ||
@@ -85,6 +80,11 @@ const CreateProductModal = ({ show, onHide }) => {
                     ? "Discount must be a number"
                     : value < 0 || value > 100 || value === "" || value === null
                     ? "Discount must be between 0 and 100"
+                    : "";
+                break;
+            case "stock":
+                newErrors.stock = isNaN(value)
+                    ? "Stock must be a number"
                     : "";
                 break;
 
@@ -199,6 +199,26 @@ const CreateProductModal = ({ show, onHide }) => {
                         </Col>
                     </Form.Group>
 
+                    <Form.Group controlId="Stock" as={Row}>
+                        <Form.Label column sm="2">
+                            Stock
+                        </Form.Label>
+                        <Col sm="10">
+                            <Form.Control
+                                type="text"
+                                name="stock"
+                                value={productData.stock}
+                                onChange={handleChange}
+                                isValid={touch.stock && !errors.stock}
+                                isInvalid={!!errors.stock}
+                                required
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.stock}
+                            </Form.Control.Feedback>
+                        </Col>
+                    </Form.Group>
+
                     <Form.Group controlId="Category" as={Row}>
                         <Form.Label column sm="2">
                             Category
@@ -253,25 +273,26 @@ const CreateProductModal = ({ show, onHide }) => {
                             {errors.selectedImages}
                         </Form.Control.Feedback>
                     </Form.Group>
+
+                    <Modal.Footer as={Row} className="mb-0 pb-0">
+                        <Button
+                            variant="outline-success"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? <Khoshpinner /> : "Save"}
+                        </Button>
+                        <Button
+                            variant="outline-primary"
+                            onClick={() => {
+                                onClose();
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </Modal.Footer>
                 </Form>
 
-                <Modal.Footer as={Row} className="mb-0 pb-0">
-                    <Button
-                        variant="outline-success"
-                        type="submit"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? <Khoshpinner /> : "Save"}
-                    </Button>
-                    <Button
-                        variant="outline-primary"
-                        onClick={() => {
-                            onClose();
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                </Modal.Footer>
             </Modal.Body>
         </Modal>
     );
