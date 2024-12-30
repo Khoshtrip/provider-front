@@ -73,7 +73,6 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
     };
 
     useEffect(() => {
-        setViewMode(ProductModalModes.VIEW);
         if (productId != undefined || productId != null) fetchProduct();
     }, [show]);
 
@@ -86,7 +85,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                 message: "Product deleted successfully",
             });
             setTimeout(() => {
-                onHide(productData, true);
+                onClose(productData,true);
             }, 2000);
         } catch (error) {
             setIsLoading({ ...isLoading, CTA: false });
@@ -138,7 +137,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                         variant: "success",
                         message: "Product updated successfully",
                     });
-                    onHide(productData);
+                    onClose(productData);
                 })
                 .catch((error) => {
                     showGlobalAlert({
@@ -207,8 +206,8 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
         setViewMode(ProductModalModes.VIEW);
     };
 
-    const onClose = () => {
-        onHide();
+    const onClose = (product, isDelete) => {
+        onHide(product, isDelete);
         resetState();
     };
 

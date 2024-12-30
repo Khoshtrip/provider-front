@@ -52,7 +52,7 @@ const CreateProductModal = ({ show, onHide }) => {
                     variant: "success",
                     message: "Product updated successfully",
                 });
-                onClose();
+                onClose(productData);
             })
             .catch((error) => {
                 showGlobalAlert({
@@ -118,8 +118,8 @@ const CreateProductModal = ({ show, onHide }) => {
         setProductData({});
     };
 
-    const onClose = () => {
-        onHide();
+    const onClose = (product) => {
+        onHide(product);
         resetState();
     };
 

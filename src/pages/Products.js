@@ -170,7 +170,11 @@ const Products = () => {
             />
             <CreateProductModal
                 show={showCreateModal}
-                onHide={() => setShowCreateModal(false)}
+                onHide={(product) => {
+                    if (product !== undefined) updateProducts(product);
+                    setShowCreateModal(false)
+                }
+                }
             />
         </>
     );
