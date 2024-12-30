@@ -34,7 +34,7 @@ export const ProductsApi = {
     updateProduct: async (productId, productData) => {
         try {
             const response = await api.put(
-                `/product/${productId}`,
+                `/product/${productId}/`,
                 productData
             );
             return response.data;
@@ -48,7 +48,7 @@ export const ProductsApi = {
     },
     deleteProduct: async (productId) => {
         try {
-            const response = await api.delete(`/product/${productId}`);
+            const response = await api.delete(`/product/${productId}/`);
             return response.data;
         } catch (error) {
             console.error(

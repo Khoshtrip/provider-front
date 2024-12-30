@@ -60,7 +60,7 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
 const Products = () => {
     const { user } = useContext(AuthContext);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [productDetailId, setProductDetailId] = useState(1);
+    const [productDetailId, setProductDetailId] = useState(undefined);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [filters, setFilters] = useState({});
     const [products, setProducts] = useState([]);

@@ -137,6 +137,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                         variant: "success",
                         message: "Product updated successfully",
                     });
+                    onClose();
                 })
                 .catch((error) => {
                     showGlobalAlert({
@@ -382,45 +383,45 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                 </Form.Control.Feedback>
                             </Form.Group>
                         )}
-                    </Form>
 
-                    <Modal.Footer as={Row}>
-                        {viewMode === ProductModalModes.EDIT ? (
-                            <>
-                                <Button variant="outline-success" type="submit">
-                                    Save
-                                </Button>
-                                <Button
-                                    variant="outline-primary"
-                                    onClick={() => {
-                                        onClose();
-                                        setProductData(backupData);
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
+                        <Modal.Footer as={Row}>
+                            {viewMode === ProductModalModes.EDIT ? (
+                                <>
+                                    <Button variant="outline-success" type="submit">
+                                        Save
+                                    </Button>
+                                    <Button
+                                        variant="outline-primary"
+                                        onClick={() => {
+                                            onClose();
+                                            setProductData(backupData);
+                                        }}
+                                        >
+                                        Cancel
+                                    </Button>
 
+                                    <Button
+                                        variant="outline-danger"
+                                        onClick={() => {
+                                            onDeleteProduct(productData.id);
+                                        }}
+                                        >
+                                        Delete Product
+                                    </Button>
+                                </>
+                            ) : (
                                 <Button
-                                    variant="outline-danger"
-                                    onClick={() => {
-                                        onDeleteProduct(productData.id);
-                                    }}
-                                >
-                                    Delete Product
-                                </Button>
-                            </>
-                        ) : (
-                            <Button
                                 variant="outline-primary"
                                 onClick={() => {
                                     setViewMode(ProductModalModes.EDIT);
                                     setBackupData(productData);
                                 }}
-                            >
-                                Edit
-                            </Button>
-                        )}
-                    </Modal.Footer>
+                                >
+                                    Edit
+                                </Button>
+                            )}
+                        </Modal.Footer>
+                    </Form>
                 </Modal.Body>
             )}
             {isLoading.fetch && <Khoshpinner />}
