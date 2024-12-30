@@ -31,7 +31,7 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
             </Pagination.Item>
         );
     }
-
+    
     return (
         <Pagination>
             {activePage !== 1 && (
@@ -60,6 +60,7 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
 const Products = () => {
     const { user } = useContext(AuthContext);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [productDetailId, setProductDetailId] = useState(1);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [filters, setFilters] = useState({});
     const [products, setProducts] = useState([]);
@@ -76,7 +77,7 @@ const Products = () => {
         await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
             .then((response) => {
                 setProducts(response.data.products);
-                setNpages(Math.floor(response.total / response.limit + 1));
+                setNpages(Math.ceil(response.data.total / response.data.limit));
             })
             .catch((error) => {
                 // TODO: change to display message better
@@ -119,8 +120,10 @@ const Products = () => {
                                 <Col key={index} className="mb-3">
                                     <ProductCard
                                         product={product}
-                                        onProductClick={(id) =>
-                                            setShowDetailModal(true)
+                                        onProductClick={(id) =>{
+                                            setProductDetailId(id);
+                                            setShowDetailModal(true);
+                                            }
                                         }
                                     />
                                 </Col>
@@ -144,6 +147,7 @@ const Products = () => {
             <ProductDetailModal
                 show={showDetailModal}
                 onHide={() => setShowDetailModal(false)}
+                productId = {productDetailId}
             />
             <CreateProductModal
                 show={showCreateModal}

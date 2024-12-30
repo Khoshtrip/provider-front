@@ -9,13 +9,13 @@ import {
     Carousel,
     Image,
 } from "react-bootstrap";
-import { ProductCardFixture } from "./ProcuctCard";
 import { ProductsApi } from "../../apis/ProductsApi";
 import { ImagesApi } from "../../apis/ImagesApi";
 import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
 
 const ImageCarousels = ({ images }) => {
+    if (images === null) return  (<Carousel data-bs-theme="dark" className="mb-3 mt-3"></Carousel>);
     return (
         <Carousel data-bs-theme="dark" className="mb-3 mt-3">
             {images.map((image, index) => (
@@ -48,7 +48,7 @@ const ProductModalModes = {
 const ProductDetailModal = ({ show, onHide, productId }) => {
     const [backupData, setBackupData] = useState({});
     const [viewMode, setViewMode] = useState(ProductModalModes.VIEW);
-    const [productData, setProductData] = useState(ProductCardFixture);
+    const [productData, setProductData] = useState();
     const [touch, setTouch] = useState({});
     const [isLoading, setIsLoading] = useState({
         CTA: false,
@@ -56,22 +56,23 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
     });
     const [errors, setErrors] = useState({});
 
+    const fetchProduct = async () => {
+        try {
+            setIsLoading({ ...isLoading, fetch: true });
+            const product = await ProductsApi.getProductById(productId);
+            setProductData(product.data);
+        } catch (error) {
+            setIsLoading({ ...isLoading, fetch: false });
+            showGlobalAlert({
+                variant: "danger",
+                message: "Error fetching product",
+            });
+        } finally {
+            setIsLoading({ ...isLoading, fetch: false });
+        }
+    };
+
     useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                setIsLoading({ ...isLoading, fetch: true });
-                const product = await ProductsApi.getProductById(productId);
-                setProductData(product);
-            } catch (error) {
-                setIsLoading({ ...isLoading, fetch: false });
-                showGlobalAlert({
-                    variant: "danger",
-                    message: "Error fetching product",
-                });
-            } finally {
-                setIsLoading({ ...isLoading, fetch: false });
-            }
-        };
         if (productId != undefined || productId != null) fetchProduct();
     }, [show]);
 
@@ -216,7 +217,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
             </Modal.Header>
             {!isLoading.fetch && (
                 <Modal.Body>
-                    <ImageCarousels images={productData.images} />
+                    <ImageCarousels images={productData.image} />
 
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="Name" as={Row}>

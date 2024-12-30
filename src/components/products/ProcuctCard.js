@@ -9,23 +9,6 @@ import {
 } from "react-bootstrap";
 import { ProductsApi } from "../../apis/ProductsApi";
 
-export const ProductCardFixture = {
-    id: 1,
-    name: "Product 1",
-    description: "Product 1 description",
-    price: 100,
-    images: [
-        "https://via.placeholder.com/150",
-        "https://via.placeholder.com/180",
-    ],
-    summary: "Product 1 summary",
-    stock: 10,
-    category: "Category 1",
-    rating: 4.5,
-    discount: 33,
-    status: "active",
-};
-
 export const ProductCard = ({ product, onProductClick }) => {
     const newPrice =
         product.discount > 0
@@ -55,13 +38,13 @@ export const ProductCard = ({ product, onProductClick }) => {
     return (
         <Card
             style={{ width: "18rem", cursor: "pointer" }}
-            onClick={() => onProductClick(product)}
+            onClick={() => onProductClick(product.id)}
         >
             <Card.Img
                 variant="top"
                 src={(product.image == null)?"https://via.placeholder.com/150":product.images[0]}
                 sizes="(max-width: 600px) 150px"
-            />:
+            />
         
             <Card.Body>
                 <Card.Title>{product.name}</Card.Title>
