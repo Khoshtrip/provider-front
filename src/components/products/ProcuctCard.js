@@ -9,17 +9,18 @@ import {
 } from "react-bootstrap";
 import { ProductsApi } from "../../apis/ProductsApi";
 
-export const ProductCard = ({ product, onProductClick }) => {
+export const ProductCard = ({ product, onProductClick, setActive }) => {
     const newPrice =
         product.discount > 0
             ? product.price * (1 - product.discount / 100)
             : product.price;
 
     const onChangeStatusClick = (productId, status) => {
-        if (status === "deactive") {
+        if (status === true) {
             ProductsApi.deactivateProduct(productId)
                 .then((response) => {
                     //TODO: reload this product
+                    setActive(product.id, false);
                 })
                 .catch((error) => {
                     //TODO: Error Handling
@@ -28,6 +29,7 @@ export const ProductCard = ({ product, onProductClick }) => {
             ProductsApi.activateProduct(productId)
                 .then((response) => {
                     //TODO: reload this product
+                    setActive(product.id, true);
                 })
                 .catch((error) => {
                     //TODO: Error Handling 

@@ -110,6 +110,15 @@ const Products = () => {
         }
     }
 
+    const changeProoductStatus = (productId, isActive) => {
+        const index = products.findIndex(item => item.id === productId);
+        if (index !== -1) {
+            const product = products[index];
+            product.isActive = isActive;
+            setProducts(products.map((item, i) => (i === index ? product : item)));
+        }
+    }
+        
     return (
         <>
             <Container className="d-flex flex-column justify-content-center align-items-center mt-4 mb-2">
@@ -140,6 +149,7 @@ const Products = () => {
                                             setShowDetailModal(true);
                                             }
                                         }
+                                        setActive={changeProoductStatus}
                                     />
                                 </Col>
                             ))}
