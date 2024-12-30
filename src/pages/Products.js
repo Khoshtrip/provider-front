@@ -95,6 +95,21 @@ const Products = () => {
         fetchProducts(1);
     }, []);
 
+    const updateProducts = (product, isDelete=false) => {
+        if (isDelete){
+            setProducts(products.filter((item, _) => (item.id !== product.id)));
+            setProductDetailId(undefined);
+        }
+        else{
+            const index = products.findIndex(item => item.id === product.id);
+            if (index !== -1) {
+                setProducts(products.map((item, i) => (i === index ? product : item)));
+            }else if (products.length < limit){
+                setProducts([...products, product]);
+            }
+        }
+    }
+
     return (
         <>
             <Container className="d-flex flex-column justify-content-center align-items-center mt-4 mb-2">
@@ -146,7 +161,11 @@ const Products = () => {
             </Container>
             <ProductDetailModal
                 show={showDetailModal}
-                onHide={() => setShowDetailModal(false)}
+                onHide={(product, isDelete) => {
+                    if (product !== undefined) updateProducts(product, isDelete);
+                    setShowDetailModal(false);
+                }
+                }
                 productId = {productDetailId}
             />
             <CreateProductModal
