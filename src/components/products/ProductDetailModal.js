@@ -84,9 +84,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                 variant: "success",
                 message: "Product deleted successfully",
             });
-            setTimeout(() => {
-                onClose(productData,true);
-            }, 2000);
+            onClose(productData, true);
         } catch (error) {
             setIsLoading({ ...isLoading, CTA: false });
             showGlobalAlert({
@@ -400,6 +398,18 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                         Cancel
                                     </Button>
 
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                    variant="outline-primary"
+                                    onClick={() => {
+                                        setViewMode(ProductModalModes.EDIT);
+                                        setBackupData(productData);
+                                    }}
+                                    >
+                                        Edit
+                                    </Button>
                                     <Button
                                         variant="outline-danger"
                                         onClick={() => {
@@ -409,16 +419,6 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                         Delete Product
                                     </Button>
                                 </>
-                            ) : (
-                                <Button
-                                variant="outline-primary"
-                                onClick={() => {
-                                    setViewMode(ProductModalModes.EDIT);
-                                    setBackupData(productData);
-                                }}
-                                >
-                                    Edit
-                                </Button>
                             )}
                         </Modal.Footer>
                     </Form>
