@@ -13,7 +13,6 @@ import Khoshpinner from "../components/core/Khoshpinner";
 const PaginationItems = ({ onPageClick, pageCount }) => {
     const items = [];
     const [activePage, setActivePage] = useState(1);
-    console.log(pageCount);
     for (
         let number = Math.max(activePage - 3, 1);
         number <= Math.min(activePage + 3, pageCount);
@@ -76,7 +75,7 @@ const Products = () => {
         setIsLoading(true);
         await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
             .then((response) => {
-                setProducts(response.products);
+                setProducts(response.data.products);
                 setNpages(Math.floor(response.total / response.limit + 1));
             })
             .catch((error) => {
