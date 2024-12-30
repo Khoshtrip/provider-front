@@ -34,20 +34,20 @@ export const ProductCard = ({ product, onProductClick }) => {
 
     const onChangeStatusClick = (productId, status) => {
         if (status === "deactive") {
-            ProductsApi.activateProduct(productId)
-                .then((response) => {
-                    console.log("Activate product with ID:", productId);
-                })
-                .catch((error) => {
-                    console.error("Error activating product:", error);
-                });
-        } else {
             ProductsApi.deactivateProduct(productId)
                 .then((response) => {
-                    console.log("Deactivate product with ID:", productId);
+                    //TODO: reload this product
                 })
                 .catch((error) => {
-                    console.error("Error deactivating product:", error);
+                    //TODO: Error Handling
+                });
+        } else {
+            ProductsApi.activateProduct(productId)
+                .then((response) => {
+                    //TODO: reload this product
+                })
+                .catch((error) => {
+                    //TODO: Error Handling 
                 });
         }
     };
@@ -113,12 +113,12 @@ export const ProductCard = ({ product, onProductClick }) => {
                             size="sm"
                             onClick={(event) => {
                                 event.stopPropagation();
-                                onChangeStatusClick(product.id, product.status);
+                                onChangeStatusClick(product.id, product.isActive);
                             }}
                         >
-                            {product.status === "deactive"
-                                ? "Ativate"
-                                : "Deactivate"}
+                            {product.isActive
+                                ? "Deactivate"
+                                : "Ativate"}
                         </Button>
                     </Col>
                 </Row>
