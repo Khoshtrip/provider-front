@@ -45,7 +45,7 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
             {activePage > 5 && <Pagination.Ellipsis />}
             {items}
             {activePage < pageCount - 5 && <Pagination.Ellipsis />}
-            {activePage !== pageCount && (
+            {activePage < pageCount && (
                 <Pagination.Next
                     onClick={() => {
                         onPageClick(activePage + 1);
