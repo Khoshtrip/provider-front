@@ -49,7 +49,15 @@ const ProductModalModes = {
 const ProductDetailModal = ({ show, onHide, productId }) => {
     const [backupData, setBackupData] = useState({});
     const [viewMode, setViewMode] = useState(ProductModalModes.VIEW);
-    const [productData, setProductData] = useState();
+    const [productData, setProductData] = useState({
+        name: "",
+        description: "",
+        price: "",
+        discount: "",
+        category: "",
+        summary: "",
+        selectedImages: [],
+    });
     const [touch, setTouch] = useState({});
     const [isLoading, setIsLoading] = useState({
         CTA: false,
@@ -152,14 +160,8 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
     const validateField = (fieldName, value) => {
         let newErrors = { ...errors };
         switch (fieldName) {
-            case "password":
-                newErrors.password =
-                    value.length < 6
-                        ? "Password must be at least 6 characters long"
-                        : "";
-                break;
             case "price":
-                newErrors.password = isNaN(value)
+                newErrors.price = isNaN(value)
                     ? "Price must be a number"
                     : value < 0 ||
                       value > 1000000 ||

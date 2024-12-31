@@ -8,7 +8,16 @@ import { showGlobalAlert } from "../core/KhoshAlert";
 import { productCategories } from "../../utils/constants"; 
 
 const CreateProductModal = ({ show, onHide }) => {
-    const [productData, setProductData] = useState({});
+    const [productData, setProductData] = useState({
+        name: "",
+        description: "",
+        price: "",
+        discount: "",
+        stock: "",
+        category: "",
+        summary: "",
+        selectedImages: [],
+    });
     const [touch, setTouch] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
@@ -116,7 +125,16 @@ const CreateProductModal = ({ show, onHide }) => {
     const resetState = () => {
         setErrors({});
         setTouch({});
-        setProductData({});
+        setProductData({
+            name: "",
+            description: "",
+            price: "",
+            discount: "",
+            stock: "",
+            category: "",
+            summary: "",
+            selectedImages: [],
+        });
     };
 
     const onClose = (product) => {
