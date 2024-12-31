@@ -13,7 +13,7 @@ import { productCategories } from "../../utils/constants";
 export const ProductCard = ({ product, onProductClick, setActive }) => {
     const newPrice =
         product.discount > 0
-            ? product.price * (1 - product.discount / 100)
+            ? (product.price * (1 - product.discount / 100)).toFixed(2)
             : product.price;
 
     const onChangeStatusClick = (productId, status) => {
@@ -59,7 +59,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
                             {product.discount > 0 ? (
                                 <>
                                     <del>{product.price}$</del>
-                                    <strong className="ms-2">
+                                    <strong className="ms-2">                                        
                                         {newPrice}$
                                     </strong>
                                     <Badge
