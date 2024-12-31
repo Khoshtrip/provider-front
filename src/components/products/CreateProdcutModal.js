@@ -57,12 +57,12 @@ const CreateProductModal = ({ show, onHide }) => {
 
         }
         await ProductsApi.createProduct(productData)
-            .then(() => {
+            .then((response) => {
                 showGlobalAlert({
                     variant: "success",
                     message: "Product updated successfully",
                 });
-                onClose(productData);
+                onClose(response.data);
             })
             .catch((error) => {
                 showGlobalAlert({
