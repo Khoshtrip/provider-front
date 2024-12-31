@@ -8,6 +8,7 @@ import {
     Row,
 } from "react-bootstrap";
 import { ProductsApi } from "../../apis/ProductsApi";
+import { productCategories } from "../../utils/constants";
 
 export const ProductCard = ({ product, onProductClick, setActive }) => {
     const newPrice =
@@ -19,7 +20,6 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
         if (status === true) {
             ProductsApi.deactivateProduct(productId)
                 .then((response) => {
-                    //TODO: reload this product
                     setActive(product.id, false);
                 })
                 .catch((error) => {
@@ -28,7 +28,6 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
         } else {
             ProductsApi.activateProduct(productId)
                 .then((response) => {
-                    //TODO: reload this product
                     setActive(product.id, true);
                 })
                 .catch((error) => {
@@ -89,7 +88,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
                 <Row className="justify-content-between align-items-center">
                     <Col>
                         <Badge pill bg="dark" className="p-2 px-3">
-                            {product.category}
+                            {productCategories[product.category]}
                         </Badge>
                     </Col>
                     <Col>

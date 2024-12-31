@@ -13,6 +13,7 @@ import { ProductsApi } from "../../apis/ProductsApi";
 import { ImagesApi } from "../../apis/ImagesApi";
 import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
+import { productCategories } from "../../utils/constants";
 
 const ImageCarousels = ({ images }) => {
     if (images === null) return  (<Carousel data-bs-theme="dark" className="mb-3 mt-3"></Carousel>);
@@ -318,21 +319,33 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                 Category
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Control
-                                    plaintext={
-                                        viewMode === ProductModalModes.VIEW
-                                    }
-                                    readOnly={
-                                        viewMode === ProductModalModes.VIEW
-                                    }
-                                    type="text"
-                                    name="category"
-                                    value={productData.category}
-                                    onChange={handleChange}
-                                    required
-                                />
+
+                            {
+                                (viewMode === ProductModalModes.VIEW) ? (
+                                    <Form.Control
+                                        plaintext
+                                        readOnly
+                                        name="category"
+                                        value={productCategories[productData.category]}
+                                    ></Form.Control>
+                                ) : (
+                                    <Form.Select
+                                        name="category"
+                                        value={productData.category || ""}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select a Category</option>
+                                        {Object.entries(productCategories).map(([key, value]) => (
+                                            <option key={key} value={key}>
+                                                {value}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                )
+                            }
                             </Col>
-                        </Form.Group>
+                        </Form.Group>  
 
                         <Form.Group controlId="Summary" as={Row}>
                             <Form.Label column sm="2">

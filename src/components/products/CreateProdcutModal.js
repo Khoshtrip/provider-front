@@ -5,6 +5,7 @@ import { ProductsApi } from "../../apis/ProductsApi";
 import { ImagesApi } from "../../apis/ImagesApi";
 import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
+import { productCategories } from "../../utils/constants"; 
 
 const CreateProductModal = ({ show, onHide }) => {
     const [productData, setProductData] = useState({});
@@ -225,15 +226,22 @@ const CreateProductModal = ({ show, onHide }) => {
                             Category
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Control
-                                type="text"
+                            <Form.Select
                                 name="category"
-                                value={productData.category}
+                                value={productData.category || ""}
                                 onChange={handleChange}
                                 required
-                            />
+                            >
+                                <option value="">Select a Category</option>
+                                {Object.entries(productCategories).map(([key, value]) => (
+                                    <option key={key} value={key}>
+                                        {value}
+                                    </option>
+                                ))}
+                            </Form.Select>
                         </Col>
                     </Form.Group>
+
 
                     <Form.Group controlId="Summary" as={Row}>
                         <Form.Label column sm="2">
