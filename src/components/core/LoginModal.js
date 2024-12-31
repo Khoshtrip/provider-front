@@ -15,7 +15,7 @@ const LoginState = {
 
 const LoginModal = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
-    const { login, signup, loading } = useContext(AuthContext);
+    const { login, signup, loading, user } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         password: "",
@@ -75,7 +75,14 @@ const LoginModal = ({ show, onHide }) => {
         switch (loginState) {
             case LoginState.LOGIN:
                 await login(formData.phone_number, formData.password)
-                    .then(onClose)
+                    .then(() => {
+                        onClose();
+                        console.log(user);
+                        showGlobalAlert({
+                            variant: "success",
+                            message: "successfully logged in!",
+                        });
+                    })
                     .catch(() => {
                         let newErrors = { ...errors };
                         newErrors.phone_number = "Invalid username or password";

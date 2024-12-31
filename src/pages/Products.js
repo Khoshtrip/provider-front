@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Container, Pagination } from "react-bootstrap";
 import { ProductCard } from "../components/products/ProcuctCard";
 import ProductDetailModal from "../components/products/ProductDetailModal";
 import ProductsHeader from "../components/products/ProductsHeader";
 import CreateProductModal from "../components/products/CreateProdcutModal";
 import { ProductsApi } from "../apis/ProductsApi";
-import KhoshAlert, { showGlobalAlert } from "../components/core/KhoshAlert";
+import { showGlobalAlert } from "../components/core/KhoshAlert";
 import "../styles/products/Products.css";
 import Khoshpinner from "../components/core/Khoshpinner";
 
@@ -31,7 +30,7 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
             </Pagination.Item>
         );
     }
-    
+
     return (
         <Pagination>
             {activePage !== 1 && (
@@ -58,7 +57,6 @@ const PaginationItems = ({ onPageClick, pageCount }) => {
 };
 
 const Products = () => {
-    const { user } = useContext(AuthContext);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [productDetailId, setProductDetailId] = useState(undefined);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -78,6 +76,9 @@ const Products = () => {
             .then((response) => {
                 setProducts(response.data.products);
                 setNpages(Math.ceil(response.data.total / response.data.limit));
+                console.log(
+                    Math.ceil(response.data.total / response.data.limit)
+                );
             })
             .catch((error) => {
                 // TODO: change to display message better
@@ -95,30 +96,33 @@ const Products = () => {
         fetchProducts(1);
     }, []);
 
-    const updateProducts = (product, isDelete=false) => {
-        if (isDelete){
-            setProducts(products.filter((item, _) => (item.id !== product.id)));
+    const updateProducts = (product, isDelete = false) => {
+        if (isDelete) {
+            setProducts(products.filter((item, _) => item.id !== product.id));
             setProductDetailId(undefined);
-        }
-        else{
-            const index = products.findIndex(item => item.id === product.id);
+        } else {
+            const index = products.findIndex((item) => item.id === product.id);
             if (index !== -1) {
-                setProducts(products.map((item, i) => (i === index ? product : item)));
-            }else if (products.length < limit){
+                setProducts(
+                    products.map((item, i) => (i === index ? product : item))
+                );
+            } else if (products.length < limit) {
                 setProducts([...products, product]);
             }
         }
-    }
+    };
 
     const changeProoductStatus = (productId, isActive) => {
-        const index = products.findIndex(item => item.id === productId);
+        const index = products.findIndex((item) => item.id === productId);
         if (index !== -1) {
             const product = products[index];
             product.isActive = isActive;
-            setProducts(products.map((item, i) => (i === index ? product : item)));
+            setProducts(
+                products.map((item, i) => (i === index ? product : item))
+            );
         }
-    }
-        
+    };
+
     return (
         <>
             <Container className="d-flex flex-column justify-content-center align-items-center mt-4 mb-2">
@@ -144,11 +148,10 @@ const Products = () => {
                                 <Col key={index} className="mb-3">
                                     <ProductCard
                                         product={product}
-                                        onProductClick={(id) =>{
+                                        onProductClick={(id) => {
                                             setProductDetailId(id);
                                             setShowDetailModal(true);
-                                            }
-                                        }
+                                        }}
                                         setActive={changeProoductStatus}
                                     />
                                 </Col>
@@ -172,19 +175,18 @@ const Products = () => {
             <ProductDetailModal
                 show={showDetailModal}
                 onHide={(product, isDelete) => {
-                    if (product !== undefined) updateProducts(product, isDelete);
+                    if (product !== undefined)
+                        updateProducts(product, isDelete);
                     setShowDetailModal(false);
-                }
-                }
-                productId = {productDetailId}
+                }}
+                productId={productDetailId}
             />
             <CreateProductModal
                 show={showCreateModal}
                 onHide={(product) => {
                     if (product !== undefined) updateProducts(product);
-                    setShowCreateModal(false)
-                }
-                }
+                    setShowCreateModal(false);
+                }}
             />
         </>
     );

@@ -3,6 +3,7 @@ import api from "../utils/api";
 export const ProductsApi = {
     createProduct: async (productData) => {
         try {
+            console.log("Product created:", productData);
             const response = await api.post("/product/", productData);
             return response.data;
         } catch (error) {
@@ -12,7 +13,9 @@ export const ProductsApi = {
     },
     getProducts: async (filters = {}, offset = 0, limit = 10) => {
         try {
-            const response = await api.get("/products/", { params: {...filters, offset, limit} });
+            const response = await api.get("/products/", {
+                params: { ...filters, offset, limit },
+            });
             return response.data;
         } catch (error) {
             console.error("Error fetching products:", error);

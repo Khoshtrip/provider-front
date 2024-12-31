@@ -7,6 +7,33 @@ import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
 import { productCategories } from "../../utils/constants"; 
 
+function uploadImagesHelper(selectedImages) {
+    return new Promise((resolve, reject) => {
+        if (!selectedImages || selectedImages.length === 0) {
+            return resolve([]); // Resolve with an empty array if no images are provided
+        }
+
+        const imageIds = [];
+        const uploadPromises = selectedImages.map((image) => {
+            const formData = new FormData();
+            formData.append("file", image);
+
+            return ImagesApi.uploadImage(formData)
+                .then((response) => {
+                    imageIds.push(response.imageId);
+                })
+                .catch((error) => {
+                    reject(new Error("Error uploading product")); // Reject with a specific error
+                });
+        });
+
+        // Wait for all uploads to complete
+        Promise.all(uploadPromises)
+            .then(() => resolve(imageIds))
+            .catch((error) => reject(error)); // Pass through the error if one occurs
+    });
+}
+
 const CreateProductModal = ({ show, onHide }) => {
     const [productData, setProductData] = useState({
         name: "",
@@ -23,9 +50,15 @@ const CreateProductModal = ({ show, onHide }) => {
     const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
-        const value = e.target.value.replace(/[۰-۹]/g, (d) =>
-            "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
-        );
+        const value =
+            e.target.name === "selectedImages"
+                ? e.target.files
+                : e.target.value.replace(/[۰-۹]/g, (d) =>
+                      "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
+                  );
+
+        console.log(e.target.name, value);
+
         setProductData({ ...productData, [e.target.name]: value });
         validateField(e.target.name, value);
         setTouch({ ...touch, [e.target.name]: true });
@@ -35,42 +68,38 @@ const CreateProductModal = ({ show, onHide }) => {
         e.preventDefault();
         setIsLoading(true);
         const { selectedImages } = productData;
-        if (selectedImages && selectedImages.length > 0) {
-            const formData = new FormData();
-            selectedImages.forEach((image) => {
-                formData.append("file", image);
-            });
-            await ImagesApi.uploadImage(formData)
-                .then(() => {
-                    showGlobalAlert({
-                        variant: "success",
-                        message: "Images uploaded successfully",
-                    });
-                })
-                .catch((error) => {
-                    // TODO: change to display message better
-                    showGlobalAlert({
-                        variant: "danger",
-                        message: "Error uploading product",
-                    });
-                });
 
-        }
-        await ProductsApi.createProduct(productData)
-            .then((response) => {
-                showGlobalAlert({
-                    variant: "success",
-                    message: "Product updated successfully",
-                });
-                onClose(response.data);
+        uploadImagesHelper(selectedImages)
+            .then(async (imageIds) => {
+                setProductData((prev) => ({ ...prev, images: imageIds }));
+
+                await ProductsApi.createProduct({
+                    ...productData,
+                    image: imageIds,
+                })
+                    .then(() => {
+                        showGlobalAlert({
+                            variant: "success",
+                            message: "Product updated successfully",
+                        });
+                        onClose(productData);
+                    })
+                    .catch((error) => {
+                        showGlobalAlert({
+                            variant: "danger",
+                            message: "Error updating product",
+                        });
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
             })
             .catch((error) => {
                 showGlobalAlert({
                     variant: "danger",
-                    message: "Error updating product",
+                    message: "Error uploading product",
                 });
             });
-        setIsLoading(false);
     };
 
     const validateField = (fieldName, value) => {
@@ -94,9 +123,7 @@ const CreateProductModal = ({ show, onHide }) => {
                     : "";
                 break;
             case "stock":
-                newErrors.stock = isNaN(value)
-                    ? "Stock must be a number"
-                    : "";
+                newErrors.stock = isNaN(value) ? "Stock must be a number" : "";
                 break;
 
             case "selectedImages":
@@ -105,6 +132,7 @@ const CreateProductModal = ({ show, onHide }) => {
                 const validFiles = files.filter((file) =>
                     allowedTypes.includes(file.type)
                 );
+
                 if (validFiles.length !== files.length) {
                     newErrors.selectedImages =
                         "Only .png and .jpg files are allowed.";
@@ -112,7 +140,7 @@ const CreateProductModal = ({ show, onHide }) => {
                     newErrors.selectedImages = "";
                     setProductData((prev) => ({
                         ...prev,
-                        selectedImages: validFiles,
+                        selectedImages: files,
                     }));
                 }
                 break;
@@ -279,13 +307,12 @@ const CreateProductModal = ({ show, onHide }) => {
 
                     <Form.Group controlId="SelectedImages" as={Row}>
                         <Form.Label column sm="2">
-                            Select Photos
+                            Select Images
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
                                 type="file"
                                 name="selectedImages"
-                                value={productData.selectedImages}
                                 accept=".png,.jpg,.jpeg"
                                 onChange={handleChange}
                                 multiple
@@ -319,7 +346,6 @@ const CreateProductModal = ({ show, onHide }) => {
                         </Button>
                     </Modal.Footer>
                 </Form>
-
             </Modal.Body>
         </Modal>
     );

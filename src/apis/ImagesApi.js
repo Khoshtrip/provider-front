@@ -3,7 +3,7 @@ import api from "../utils/api";
 export const ImagesApi = {
     uploadImage: async (formData) => {
         try {
-            const response = await api.post("/image/upload", formData, {
+            const response = await api.post("/image/upload/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -16,7 +16,7 @@ export const ImagesApi = {
     },
     deleteImage: async (imageId) => {
         try {
-            const response = await api.delete(`/image/${imageId}`);
+            const response = await api.delete(`/image/${imageId}/`);
             return response.data;
         } catch (error) {
             console.error(`Error deleting image with ID ${imageId}:`, error);
@@ -25,7 +25,7 @@ export const ImagesApi = {
     },
     downloadImage: async (imageId) => {
         try {
-            const response = await api.get(`/image/${imageId}/download`, {
+            const response = await api.get(`/image/${imageId}/download/`, {
                 responseType: "blob", // Ensures response is treated as binary data
             });
             return response.data;

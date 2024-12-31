@@ -31,10 +31,6 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
         try {
             const response = await AuthenticationApi.fetchUser();
-            if (response.data.role !== "provider") {
-                throw new Exception("You are not a provider!");
-            }
-
             setUser({
                 email: response.data.email,
                 phoneNumber: response.data.phone_number,

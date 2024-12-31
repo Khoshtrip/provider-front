@@ -31,7 +31,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
                     setActive(product.id, true);
                 })
                 .catch((error) => {
-                    //TODO: Error Handling 
+                    //TODO: Error Handling
                 });
         }
     };
@@ -43,10 +43,14 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
         >
             <Card.Img
                 variant="top"
-                src={(product.image == null)?"https://via.placeholder.com/150":product.images[0]}
+                src={
+                    product.image == null
+                        ? "https://via.placeholder.com/150"
+                        : product.images[0]
+                }
                 sizes="(max-width: 600px) 150px"
             />
-        
+
             <Card.Body>
                 <Card.Title>{product.name}</Card.Title>
                 <Card.Text>{product.description}</Card.Text>
@@ -97,12 +101,13 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
                             size="sm"
                             onClick={(event) => {
                                 event.stopPropagation();
-                                onChangeStatusClick(product.id, product.isActive);
+                                onChangeStatusClick(
+                                    product.id,
+                                    product.isActive
+                                );
                             }}
                         >
-                            {product.isActive
-                                ? "Deactivate"
-                                : "Ativate"}
+                            {product.isActive ? "Deactivate" : "Ativate"}
                         </Button>
                     </Col>
                 </Row>
