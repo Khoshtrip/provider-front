@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import api from "../utils/api";
 import { AuthenticationApi } from "../apis/AuthenticationApi";
-import { Exception } from "sass";
 
 export const AuthContext = createContext();
 
@@ -90,7 +89,15 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ isAuthenticated, user, login, signup, logout, loading }}
+            value={{
+                isAuthenticated,
+                user,
+                login,
+                signup,
+                logout,
+                loading,
+                fetchUser,
+            }}
         >
             {children}
         </AuthContext.Provider>

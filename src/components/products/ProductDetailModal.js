@@ -68,8 +68,13 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
         try {
             setIsLoading({ ...isLoading, fetch: true });
             const product = await ProductsApi.getProductById(productId);
-            console.log(product);
-            setProductData(product.data);
+            setProductData({
+                ...product.data,
+                imageUrls: product.data.images.map(
+                    (image) =>
+                        `http://localhost:8000/api/image/${image}/download/`
+                ),
+            });
         } catch (error) {
             setIsLoading({ ...isLoading, fetch: false });
             showGlobalAlert({
@@ -219,8 +224,8 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
             </Modal.Header>
             {!isLoading.fetch && (
                 <Modal.Body>
-                    {productData.image && (
-                        <ImageCarousels images={productData.image} />
+                    {productData.imageUrls && (
+                        <ImageCarousels images={productData.imageUrls} />
                     )}
 
                     <Form onSubmit={handleSubmit}>

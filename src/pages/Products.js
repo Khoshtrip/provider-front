@@ -74,10 +74,18 @@ const Products = () => {
         setIsLoading(true);
         await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
             .then((response) => {
-                setProducts(response.data.products);
-                console.log("products:", response.data.products);
+                setProducts(
+                    response.data.products.map((product) => {
+                        if (product.images.length > 0) {
+                            product.imageUrl = `http://localhost:8000/api/image/${product.images[0]}/download/`;
+                        } else {
+                            product.imageUrl =
+                                "https://via.placeholder.com/150";
+                        }
+                        return product;
+                    })
+                );
                 setNpages(Math.ceil(response.data.total / response.data.limit));
-                // setProducts(products.map((product) => ({ ...product , image: })));
             })
             .catch((error) => {
                 // TODO: change to display message better
@@ -93,7 +101,6 @@ const Products = () => {
 
     useEffect(() => {
         fetchProducts(1);
-        console.log(products);
     }, []);
 
     const updateProducts = (product, isDelete = false) => {
@@ -188,6 +195,9 @@ const Products = () => {
                 onHide={(product) => {
                     if (product !== undefined) updateProducts(product);
                     setShowCreateModal(false);
+                }}
+                postCreate={() => {
+                    fetchProducts(1);
                 }}
             />
         </>

@@ -43,11 +43,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
         >
             <Card.Img
                 variant="top"
-                src={
-                    product.image === null
-                        ? "https://via.placeholder.com/150"
-                        : product.images[0]
-                }
+                src={product.imageUrl}
                 sizes="(max-width: 600px) 150px"
             />
 

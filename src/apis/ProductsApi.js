@@ -3,7 +3,6 @@ import api from "../utils/api";
 export const ProductsApi = {
     createProduct: async (productData) => {
         try {
-            console.log("Product created:", productData);
             const response = await api.post("/product/", productData);
             return response.data;
         } catch (error) {

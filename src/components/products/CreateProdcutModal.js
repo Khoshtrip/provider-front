@@ -14,7 +14,7 @@ function uploadImagesHelper(selectedImages) {
         }
 
         const imageIds = [];
-        const uploadPromises = selectedImages.map((image) => {
+        const uploadPromises = selectedImages.map(async (image) => {
             const formData = new FormData();
             formData.append("file", image);
 
@@ -34,7 +34,7 @@ function uploadImagesHelper(selectedImages) {
     });
 }
 
-const CreateProductModal = ({ show, onHide }) => {
+const CreateProductModal = ({ show, onHide, postCreate }) => {
     const [productData, setProductData] = useState({
         name: "",
         description: "",
@@ -57,7 +57,6 @@ const CreateProductModal = ({ show, onHide }) => {
                       "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
                   );
 
-        console.log(e.target.name, value);
 
         setProductData({ ...productData, [e.target.name]: value });
         validateField(e.target.name, value);
@@ -75,15 +74,15 @@ const CreateProductModal = ({ show, onHide }) => {
 
                 await ProductsApi.createProduct({
                     ...productData,
-                    image: imageIds,
+                    images: imageIds,
                 })
                     .then((response) => {
                         showGlobalAlert({
                             variant: "success",
                             message: "Product updated successfully",
                         });
-                        console.log(response);
                         onClose(response);
+                        postCreate();
                     })
                     .catch((error) => {
                         showGlobalAlert({
