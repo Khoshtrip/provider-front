@@ -75,10 +75,9 @@ const Products = () => {
         await ProductsApi.getProducts(filters, (page - 1) * limit, limit)
             .then((response) => {
                 setProducts(response.data.products);
+                console.log("products:", response.data.products);
                 setNpages(Math.ceil(response.data.total / response.data.limit));
-                console.log(
-                    Math.ceil(response.data.total / response.data.limit)
-                );
+                // setProducts(products.map((product) => ({ ...product , image: })));
             })
             .catch((error) => {
                 // TODO: change to display message better
@@ -94,6 +93,7 @@ const Products = () => {
 
     useEffect(() => {
         fetchProducts(1);
+        console.log(products);
     }, []);
 
     const updateProducts = (product, isDelete = false) => {
@@ -164,13 +164,15 @@ const Products = () => {
                         </Row>
                     </>
                 )}
-                <PaginationItems
-                    onPageClick={(page) => {
-                        fetchProducts(page);
-                    }}
-                    pageCount={npages}
-                    className="text-center align-items-center"
-                />
+                {products.length !== 0 && (
+                    <PaginationItems
+                        onPageClick={(page) => {
+                            fetchProducts(page);
+                        }}
+                        pageCount={npages}
+                        className="text-center align-items-center"
+                    />
+                )}
             </Container>
             <ProductDetailModal
                 show={showDetailModal}

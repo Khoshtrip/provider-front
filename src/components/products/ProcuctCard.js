@@ -44,7 +44,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
             <Card.Img
                 variant="top"
                 src={
-                    product.image == null
+                    product.image === null
                         ? "https://via.placeholder.com/150"
                         : product.images[0]
                 }
@@ -63,7 +63,7 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
                             {product.discount > 0 ? (
                                 <>
                                     <del>{product.price}$</del>
-                                    <strong className="ms-2">                                        
+                                    <strong className="ms-2">
                                         {newPrice}$
                                     </strong>
                                     <Badge

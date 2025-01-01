@@ -5,7 +5,7 @@ import { ProductsApi } from "../../apis/ProductsApi";
 import { ImagesApi } from "../../apis/ImagesApi";
 import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
-import { productCategories } from "../../utils/constants"; 
+import { productCategories } from "../../utils/constants";
 
 function uploadImagesHelper(selectedImages) {
     return new Promise((resolve, reject) => {
@@ -77,12 +77,13 @@ const CreateProductModal = ({ show, onHide }) => {
                     ...productData,
                     image: imageIds,
                 })
-                    .then(() => {
+                    .then((response) => {
                         showGlobalAlert({
                             variant: "success",
                             message: "Product updated successfully",
                         });
-                        onClose(productData);
+                        console.log(response);
+                        onClose(response);
                     })
                     .catch((error) => {
                         showGlobalAlert({
@@ -279,15 +280,16 @@ const CreateProductModal = ({ show, onHide }) => {
                                 required
                             >
                                 <option value="">Select a Category</option>
-                                {Object.entries(productCategories).map(([key, value]) => (
-                                    <option key={key} value={key}>
-                                        {value}
-                                    </option>
-                                ))}
+                                {Object.entries(productCategories).map(
+                                    ([key, value]) => (
+                                        <option key={key} value={key}>
+                                            {value}
+                                        </option>
+                                    )
+                                )}
                             </Form.Select>
                         </Col>
                     </Form.Group>
-
 
                     <Form.Group controlId="Summary" as={Row}>
                         <Form.Label column sm="2">

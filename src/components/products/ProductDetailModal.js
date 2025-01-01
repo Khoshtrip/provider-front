@@ -16,10 +16,9 @@ import { showGlobalAlert } from "../core/KhoshAlert";
 import { productCategories } from "../../utils/constants";
 
 const ImageCarousels = ({ images }) => {
-    if (images === null) return  (<Carousel data-bs-theme="dark" className="mb-3 mt-3"></Carousel>);
     return (
         <Carousel data-bs-theme="dark" className="mb-3 mt-3">
-            {images.map((image, index) => (
+            {images?.map((image, index) => (
                 <Carousel.Item
                     key={index}
                     className="justify-content-center"
@@ -69,6 +68,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
         try {
             setIsLoading({ ...isLoading, fetch: true });
             const product = await ProductsApi.getProductById(productId);
+            console.log(product);
             setProductData(product.data);
         } catch (error) {
             setIsLoading({ ...isLoading, fetch: false });
@@ -219,7 +219,9 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
             </Modal.Header>
             {!isLoading.fetch && (
                 <Modal.Body>
-                    <ImageCarousels images={productData.image} />
+                    {productData.image && (
+                        <ImageCarousels images={productData.image} />
+                    )}
 
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="Name" as={Row}>
@@ -321,14 +323,16 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                 Category
                             </Form.Label>
                             <Col sm="10">
-
-                            {
-                                (viewMode === ProductModalModes.VIEW) ? (
+                                {viewMode === ProductModalModes.VIEW ? (
                                     <Form.Control
                                         plaintext
                                         readOnly
                                         name="category"
-                                        value={productCategories[productData.category]}
+                                        value={
+                                            productCategories[
+                                                productData.category
+                                            ]
+                                        }
                                     ></Form.Control>
                                 ) : (
                                     <Form.Select
@@ -337,17 +341,20 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                         onChange={handleChange}
                                         required
                                     >
-                                        <option value="">Select a Category</option>
-                                        {Object.entries(productCategories).map(([key, value]) => (
-                                            <option key={key} value={key}>
-                                                {value}
-                                            </option>
-                                        ))}
+                                        <option value="">
+                                            Select a Category
+                                        </option>
+                                        {Object.entries(productCategories).map(
+                                            ([key, value]) => (
+                                                <option key={key} value={key}>
+                                                    {value}
+                                                </option>
+                                            )
+                                        )}
                                     </Form.Select>
-                                )
-                            }
+                                )}
                             </Col>
-                        </Form.Group>  
+                        </Form.Group>
 
                         <Form.Group controlId="Summary" as={Row}>
                             <Form.Label column sm="2">
@@ -400,7 +407,10 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                         <Modal.Footer as={Row}>
                             {viewMode === ProductModalModes.EDIT ? (
                                 <>
-                                    <Button variant="outline-success" type="submit">
+                                    <Button
+                                        variant="outline-success"
+                                        type="submit"
+                                    >
                                         Save
                                     </Button>
                                     <Button
@@ -409,19 +419,18 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                             onClose();
                                             setProductData(backupData);
                                         }}
-                                        >
+                                    >
                                         Cancel
                                     </Button>
-
                                 </>
                             ) : (
                                 <>
                                     <Button
-                                    variant="outline-primary"
-                                    onClick={() => {
-                                        setViewMode(ProductModalModes.EDIT);
-                                        setBackupData(productData);
-                                    }}
+                                        variant="outline-primary"
+                                        onClick={() => {
+                                            setViewMode(ProductModalModes.EDIT);
+                                            setBackupData(productData);
+                                        }}
                                     >
                                         Edit
                                     </Button>
@@ -430,7 +439,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                         onClick={() => {
                                             onDeleteProduct(productData.id);
                                         }}
-                                        >
+                                    >
                                         Delete Product
                                     </Button>
                                 </>
