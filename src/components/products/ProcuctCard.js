@@ -7,10 +7,20 @@ import {
     Col,
     Row,
 } from "react-bootstrap";
+import { useState } from "react";
 import { ProductsApi } from "../../apis/ProductsApi";
 import { productCategories } from "../../utils/constants";
+import { showGlobalAlert } from "../core/KhoshAlert";
 
-export const ProductCard = ({ product, onProductClick, setActive }) => {
+export const ProductCard = ({
+    product,
+    onProductClick,
+    onChangeProductStatus,
+    isSelected,
+    onSelectProduct,
+}) => {
+    const [isHovered, setIsHoverd] = useState(false);
+
     const newPrice =
         product.discount > 0
             ? (product.price * (1 - product.discount / 100)).toFixed(2)
@@ -20,38 +30,80 @@ export const ProductCard = ({ product, onProductClick, setActive }) => {
         if (status === true) {
             ProductsApi.deactivateProduct(productId)
                 .then((response) => {
-                    setActive(product.id, false);
+                    onChangeProductStatus(product.id, false);
+                    showGlobalAlert({
+                        title: "Product Deactivated",
+                        message: "Product has been deactivated successfully",
+                        variant: "success",
+                    });
                 })
                 .catch((error) => {
-                    //TODO: Error Handling
+                    showGlobalAlert({
+                        title: "Error",
+                        message: "Failed to deactivate product",
+                        variant: "danger",
+                    });
                 });
         } else {
             ProductsApi.activateProduct(productId)
                 .then((response) => {
-                    setActive(product.id, true);
+                    onChangeProductStatus(product.id, true);
+                    showGlobalAlert({
+                        title: "Product Activated",
+                        message: "Product has been activated successfully",
+                        variant: "success",
+                    });
                 })
                 .catch((error) => {
-                    //TODO: Error Handling
+                    showGlobalAlert({
+                        title: "Error",
+                        message: "Failed to activate product",
+                        variant: "danger",
+                    });
                 });
         }
     };
 
     return (
         <Card
-            style={{ width: "18rem", cursor: "pointer" }}
-            onClick={() => onProductClick(product.id)}
+            style={{ width: "18rem" }}
+            onMouseEnter={() => setIsHoverd(true)}
+            onMouseLeave={() => setIsHoverd(false)}
         >
+            {(isHovered || isSelected) && (
+                <input
+                    style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        cursor: "pointer",
+                    }}
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(event) => {
+                        event.stopPropagation();
+                        onSelectProduct(product.id, event.target.checked);
+                    }}
+                />
+            )}
             <Card.Img
                 variant="top"
                 src={product.imageUrl}
                 sizes="(max-width: 600px) 150px"
             />
 
-            <Card.Body>
+            <Card.Body
+                onClick={() => onProductClick(product.id)}
+                style={{ cursor: "pointer" }}
+            >
                 <Card.Title>{product.name}</Card.Title>
                 <Card.Text>{product.description}</Card.Text>
             </Card.Body>
-            <ListGroup className="list-group-flush">
+            <ListGroup
+                className="list-group-flush"
+                onClick={() => onProductClick(product.id)}
+                style={{ cursor: "pointer" }}
+            >
                 <ListGroup.Item>
                     <Stack direction="horizontal" gap={2}>
                         <strong>Price:</strong>

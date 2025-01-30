@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Form, Button, Collapse } from "react-bootstrap";
+import { productCategories } from "../../utils/constants";
 
 let kooft = {};
-
 const FilterComponent = ({ showFilters, onFilterChange, onApplyFilters }) => {
     const [filters, setFilters] = useState({
         search: "",
@@ -56,22 +56,34 @@ const FilterComponent = ({ showFilters, onFilterChange, onApplyFilters }) => {
                                 />
                             </Col>
                             <Col md={6} className="mb-3">
-                                <Form.Label>Category</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Category "
-                                    value={filters.category}
-                                    onChange={(e) =>
-                                        handleFilterChange(
-                                            "category",
-                                            e.target.value
-                                        )
-                                    }
-                                />
+                                <Form.Group controlId="Category" as={Row}>
+                                    <Form.Label>Category</Form.Label>
+                                    <Form.Select
+                                        name="category"
+                                        value={filters.category || ""}
+                                        onChange={(e) => {
+                                            handleFilterChange(
+                                                "category",
+                                                e.target.value
+                                            );
+                                        }}
+                                    >
+                                        <option value="">
+                                            Select a Category
+                                        </option>
+                                        {Object.entries(productCategories).map(
+                                            ([key, value]) => (
+                                                <option key={key} value={key}>
+                                                    {value}
+                                                </option>
+                                            )
+                                        )}
+                                    </Form.Select>
+                                </Form.Group>
                             </Col>
                         </Row>
                         <Row>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-3 d-flex flex-column">
                                 <Form.Label>Min Price</Form.Label>
                                 <Form.Range
                                     value={filters.minPrice}
@@ -83,6 +95,7 @@ const FilterComponent = ({ showFilters, onFilterChange, onApplyFilters }) => {
                                             parseInt(e.target.value)
                                         )
                                     }
+                                    style={{ border: "1px" }}
                                 />
                                 <Form.Text>{filters.minPrice}</Form.Text>
                             </Col>
@@ -98,6 +111,7 @@ const FilterComponent = ({ showFilters, onFilterChange, onApplyFilters }) => {
                                             parseInt(e.target.value)
                                         )
                                     }
+                                    style={{ border: "1px" }}
                                 />
                                 <Form.Text>{filters.maxPrice}</Form.Text>
                             </Col>
@@ -144,8 +158,12 @@ const ProductsHeader = ({
     onAddNewProductClick,
     onFilterChange,
     onApplyFilters,
+    selectedProducts,
+    onBulkDelete,
+    onBulkInventoryChange,
 }) => {
     const [showFilters, setShowFilters] = useState(false);
+    const [inventoryValue, setInventoryValue] = useState(0);
 
     return (
         <>
@@ -172,6 +190,38 @@ const ProductsHeader = ({
                     >
                         Filters
                     </Button>
+                    {selectedProducts.length > 0 && (
+                        <Button
+                            variant="danger"
+                            className="float-end rounded-pill px-3 me-2"
+                            onClick={() => onBulkDelete()}
+                        >
+                            Delete
+                        </Button>
+                    )}
+                    {selectedProducts.length > 0 && (
+                        <>
+                            <Form.Control
+                                type="number"
+                                placeholder="Inventory"
+                                value={inventoryValue}
+                                onChange={(e) =>
+                                    setInventoryValue(e.target.value)
+                                }
+                                style={{ width: "150px" }}
+                                className="float-end me-2"
+                            />
+                            <Button
+                                variant="warning"
+                                className="float-end rounded-pill px-3 me-2"
+                                onClick={() =>
+                                    onBulkInventoryChange(inventoryValue)
+                                }
+                            >
+                                Change Inventory
+                            </Button>
+                        </>
+                    )}
                 </Col>
                 <hr className="my-2 border-primary" />
             </Row>

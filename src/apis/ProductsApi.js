@@ -84,4 +84,37 @@ export const ProductsApi = {
             throw error;
         }
     },
+    bulkDelete: async (productIds) => {
+        try {
+            const csIDs = productIds.map((id) => id.toString()).join(",");
+            console.log(csIDs);
+            const response = await api.delete("/product/delete", {
+                productIds: csIDs,
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error bulk deleting products:", error);
+            throw error;
+        }
+    },
+    buldChangeInventory: async (productIds, value) => {
+        try {
+            const body = productIds.map((id) => {
+                {
+                    productId: id.toString();
+                }
+            });
+            const response = await api.patch(
+                "/product/changeProductsAmountBy",
+                {
+                    updates: body,
+                    stockChange: value,
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Error bulk changing inventory:", error);
+            throw error;
+        }
+    },
 };

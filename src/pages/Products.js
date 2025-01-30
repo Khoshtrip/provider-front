@@ -65,6 +65,7 @@ const Products = () => {
     const [npages, setNpages] = useState(1);
     const [limit, setLimit] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedProducts, setSelectedProducts] = useState([]);
 
     const onFilterChange = (filters) => {
         setFilters(filters);
@@ -130,11 +131,64 @@ const Products = () => {
         }
     };
 
+    const onSelectProduct = (productId, isSelected) => {
+        if (isSelected) {
+            setSelectedProducts((prev) => [...prev, productId]);
+        } else {
+            setSelectedProducts((prev) =>
+                prev.filter((id) => id !== productId)
+            );
+        }
+    };
+
+    const onBulkDelete = () => {
+        ProductsApi.bulkDelete(selectedProducts)
+            .then((response) => {
+                setSelectedProducts([]);
+                fetchProducts(1);
+                showGlobalAlert({
+                    title: "Products Deleted",
+                    message: "Selected products have been deleted",
+                    variant: "success",
+                });
+            })
+            .catch((error) => {
+                showGlobalAlert({
+                    title: "Error",
+                    message: "Failed to delete products",
+                    variant: "danger",
+                });
+            });
+    };
+
+    const onBulkInventoryChange = (value) => {
+        ProductsApi.buldChangeInventory(selectedProducts, value)
+            .then((response) => {
+                setSelectedProducts([]);
+                fetchProducts(1);
+                showGlobalAlert({
+                    title: "Products Inventory Updated",
+                    message: "Selected products inventory has been updated",
+                    variant: "success",
+                });
+            })
+            .catch((error) => {
+                showGlobalAlert({
+                    title: "Error",
+                    message: "Failed to update products inventory",
+                    variant: "danger",
+                });
+            });
+    };
+
     return (
         <>
             <Container className="d-flex flex-column justify-content-center align-items-center mt-4 mb-2">
                 <ProductsHeader
                     className="d-flex flex-column"
+                    selectedProducts={selectedProducts}
+                    onBulkDelete={onBulkDelete}
+                    onBulkInventoryChange={onBulkInventoryChange}
                     onAddNewProductClick={() => {
                         setShowCreateModal(true);
                     }}
@@ -159,7 +213,15 @@ const Products = () => {
                                             setProductDetailId(id);
                                             setShowDetailModal(true);
                                         }}
-                                        setActive={changeProoductStatus}
+                                        onChangeProductStatus={
+                                            changeProoductStatus
+                                        }
+                                        isSelected={
+                                            selectedProducts.indexOf(
+                                                product.id
+                                            ) !== -1
+                                        }
+                                        onSelectProduct={onSelectProduct}
                                     />
                                 </Col>
                             ))}

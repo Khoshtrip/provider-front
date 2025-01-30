@@ -15,6 +15,33 @@ import Khoshpinner from "../core/Khoshpinner";
 import { showGlobalAlert } from "../core/KhoshAlert";
 import { productCategories } from "../../utils/constants";
 
+function uploadImagesHelper(selectedImages) {
+    return new Promise((resolve, reject) => {
+        if (!selectedImages || selectedImages.length === 0) {
+            return resolve([]); // Resolve with an empty array if no images are provided
+        }
+
+        const imageIds = [];
+        const uploadPromises = selectedImages.map(async (image) => {
+            const formData = new FormData();
+            formData.append("file", image);
+
+            return ImagesApi.uploadImage(formData)
+                .then((response) => {
+                    imageIds.push(response.imageId);
+                })
+                .catch((error) => {
+                    reject(new Error("Error uploading product")); // Reject with a specific error
+                });
+        });
+
+        // Wait for all uploads to complete
+        Promise.all(uploadPromises)
+            .then(() => resolve(imageIds))
+            .catch((error) => reject(error)); // Pass through the error if one occurs
+    });
+}
+
 const ImageCarousels = ({ images }) => {
     return (
         <Carousel data-bs-theme="dark" className="mb-3 mt-3">
@@ -111,9 +138,12 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
     };
 
     const handleChange = (e) => {
-        const value = e.target.value.replace(/[۰-۹]/g, (d) =>
-            "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
-        );
+        const value =
+            e.target.name === "selectedImages"
+                ? e.target.files
+                : e.target.value.replace(/[۰-۹]/g, (d) =>
+                      "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
+                  );
         setProductData({ ...productData, [e.target.name]: value });
         validateField(e.target.name, value);
         setTouch({ ...touch, [e.target.name]: true });
@@ -189,6 +219,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                 const validFiles = files.filter((file) =>
                     allowedTypes.includes(file.type)
                 );
+
                 if (validFiles.length !== files.length) {
                     newErrors.selectedImages =
                         "Only .png and .jpg files are allowed.";
@@ -196,7 +227,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                     newErrors.selectedImages = "";
                     setProductData((prev) => ({
                         ...prev,
-                        selectedImages: validFiles,
+                        selectedImages: files,
                     }));
                 }
                 break;
@@ -383,16 +414,15 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                             </Col>
                         </Form.Group>
 
-                        {viewMode === ProductModalModes.EDIT && (
+                        {/* {viewMode === ProductModalModes.EDIT && (
                             <Form.Group controlId="SelectedImages" as={Row}>
                                 <Form.Label column sm="2">
-                                    Select Photos
+                                    Select Images
                                 </Form.Label>
                                 <Col sm="10">
                                     <Form.Control
                                         type="file"
                                         name="selectedImages"
-                                        value={productData.selectedImages}
                                         accept=".png,.jpg,.jpeg"
                                         onChange={handleChange}
                                         multiple
@@ -407,7 +437,7 @@ const ProductDetailModal = ({ show, onHide, productId }) => {
                                     {errors.selectedImages}
                                 </Form.Control.Feedback>
                             </Form.Group>
-                        )}
+                        )} */}
 
                         <Modal.Footer as={Row}>
                             {viewMode === ProductModalModes.EDIT ? (

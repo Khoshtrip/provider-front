@@ -57,7 +57,6 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
                       "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
                   );
 
-
         setProductData({ ...productData, [e.target.name]: value });
         validateField(e.target.name, value);
         setTouch({ ...touch, [e.target.name]: true });
@@ -179,7 +178,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
                 <Form onSubmit={handleSubmit}>
                     <Form.Group controlId="Name" as={Row}>
                         <Form.Label column sm="2">
-                            Name
+                            Name*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
@@ -194,7 +193,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Description" as={Row}>
                         <Form.Label column sm="2">
-                            Description
+                            Description*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
@@ -209,7 +208,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Price" as={Row}>
                         <Form.Label column sm="2">
-                            Price
+                            Price*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
@@ -229,7 +228,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Discount" as={Row}>
                         <Form.Label column sm="2">
-                            Discount
+                            Discount*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
@@ -249,7 +248,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Stock" as={Row}>
                         <Form.Label column sm="2">
-                            Stock
+                            Stock*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
@@ -269,7 +268,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Category" as={Row}>
                         <Form.Label column sm="2">
-                            Category
+                            Category*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Select
@@ -292,7 +291,7 @@ const CreateProductModal = ({ show, onHide, postCreate }) => {
 
                     <Form.Group controlId="Summary" as={Row}>
                         <Form.Label column sm="2">
-                            Summary
+                            Summary*
                         </Form.Label>
                         <Col sm="10">
                             <Form.Control
