@@ -162,7 +162,7 @@ const Products = () => {
     };
 
     const onBulkInventoryChange = (value) => {
-        ProductsApi.buldChangeInventory(selectedProducts, value)
+        ProductsApi.bulkChangeInventory(selectedProducts, value)
             .then((response) => {
                 setSelectedProducts([]);
                 fetchProducts(1);
