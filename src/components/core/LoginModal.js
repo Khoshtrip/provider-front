@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
-import "../styles/Login.css";
-import { Form, Modal, Button, Col, Row, Stack, Alert } from "react-bootstrap";
+import { AuthContext } from "../../context/AuthContext";
+import "../../styles/core/Login.css";
+import { Form, Modal, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { AuthenticationApi } from "../apis/AuthenticationApi";
+import { AuthenticationApi } from "../../apis/AuthenticationApi";
+import { showGlobalAlert } from "./KhoshAlert";
 
 const LoginState = {
     LOGIN: "login",
@@ -12,9 +13,9 @@ const LoginState = {
     VERIFICATION_CONTACT: "verification_contact",
 };
 
-const Login = ({ show, onHide }) => {
+const LoginModal = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
-    const { login, signup, loading } = useContext(AuthContext);
+    const { login, signup, loading, user } = useContext(AuthContext);
     const [alert, setAlert] = useState({
         shouldShow: false,
         variant: "success",
@@ -79,7 +80,14 @@ const Login = ({ show, onHide }) => {
         switch (loginState) {
             case LoginState.LOGIN:
                 await login(formData.phone_number, formData.password)
-                    .then(onClose)
+                    .then(() => {
+                        onClose();
+                        console.log(user);
+                        showGlobalAlert({
+                            variant: "success",
+                            message: "successfully logged in!",
+                        });
+                    })
                     .catch(() => {
                         let newErrors = { ...errors };
                         newErrors.phone_number = "Invalid username or password";
@@ -90,24 +98,17 @@ const Login = ({ show, onHide }) => {
             case LoginState.SIGNUP:
                 await signup(formData)
                     .then(() => {
-                        setAlert({
-                            shouldShow: true,
+                        showGlobalAlert({
                             variant: "success",
                             message: "successfully signed up!",
                         });
                         setTimeout(() => {
-                            setAlert({
-                                shouldShow: false,
-                                variant: "success",
-                                message: "successfully signed up!",
-                            });
                             resetState();
                             setLoginState(LoginState.LOGIN);
                         }, 1500);
                     })
                     .catch(() => {
-                        setAlert({
-                            shouldShow: true,
+                        showGlobalAlert({
                             variant: "danger",
                             message:
                                 "This phone number already has an account!",
@@ -141,7 +142,6 @@ const Login = ({ show, onHide }) => {
                         newErrors.code = "Invalid code";
                         setErrors(newErrors);
                     });
-                //
                 break;
             default:
                 break;
@@ -219,9 +219,6 @@ const Login = ({ show, onHide }) => {
             businessAddress: "",
             businessPhone: "",
             businessWebsite: "",
-        });
-        setAlert({
-            shouldShow: false,
         });
         setTouch({});
     };
@@ -523,15 +520,6 @@ const Login = ({ show, onHide }) => {
                                     onChange={handleChange}
                                 />
                             </Form.Group>
-
-                            {alert.shouldShow && (
-                                <Alert
-                                    show={alert.shouldShow}
-                                    variant={alert.variant}
-                                >
-                                    {alert.message}
-                                </Alert>
-                            )}
                         </>
                     )}
 
@@ -566,4 +554,4 @@ const Login = ({ show, onHide }) => {
     );
 };
 
-export default Login;
+export default LoginModal;

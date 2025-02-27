@@ -1,5 +1,4 @@
-import { FormSelect } from "react-bootstrap";
-import api from "../utils/api"; // Assuming your configuration file is named api.js
+import api from "../utils/api"; 
 
 export const AuthenticationApi = {
     sendVerificationCode: async (contactValue) => {
