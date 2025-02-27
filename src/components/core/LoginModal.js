@@ -16,6 +16,11 @@ const LoginState = {
 const LoginModal = ({ show, onHide }) => {
     const [loginState, setLoginState] = useState(LoginState.LOGIN);
     const { login, signup, loading, user } = useContext(AuthContext);
+    const [alert, setAlert] = useState({
+        shouldShow: false,
+        variant: "success",
+        message: "successfully signed up!",
+    });
 
     const [formData, setFormData] = useState({
         password: "",
@@ -137,7 +142,6 @@ const LoginModal = ({ show, onHide }) => {
                         newErrors.code = "Invalid code";
                         setErrors(newErrors);
                     });
-                //
                 break;
             default:
                 break;

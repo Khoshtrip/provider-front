@@ -86,11 +86,33 @@ export const ProductCard = ({
                     }}
                 />
             )}
-            <Card.Img
-                variant="top"
-                src={product.imageUrl}
-                sizes="(max-width: 600px) 150px"
-            />
+            {product.imageUrl ? (
+                <Card.Img
+                    variant="top"
+                    src={product.imageUrl}
+                    style={{
+                        minBlockSize: "200px",
+                        maxBlockSize: "200px",
+                        objectFit: "contain",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                />
+            ) : (
+                <Card.Img
+                    variant="top"
+                    src="https://via.placeholder.com/150"
+                    style={{
+                        minBlockSize: "200px",
+                        maxBlockSize: "200px",
+                        objectFit: "contain",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                />
+            )}
 
             <Card.Body
                 onClick={() => onProductClick(product.id)}

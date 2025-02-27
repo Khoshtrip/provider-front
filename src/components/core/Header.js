@@ -40,9 +40,6 @@ const HeaderTabs = ({ isAuthenticated }) => {
             <Nav.Link href="/" className="on-primary">
                 Home
             </Nav.Link>
-            <Nav.Link href="/blog" className="on-primary">
-                Blog
-            </Nav.Link>
             {isAuthenticated && (
                 <>
                     <Nav.Link href="/products" className="on-primary">
