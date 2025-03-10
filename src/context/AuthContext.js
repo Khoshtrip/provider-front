@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
                 role: response.data.role,
                 businessName: response.data.business_name,
                 businessAddress: response.data.business_address,
-                businessPhone: response.data.business_phone,
+                businessPhone: response.data.business_contact,
                 businessWebsite: response.data.website_url,
             });
             setIsAuthenticated(true);
