@@ -352,7 +352,7 @@ const LoginModal = ({ show, onHide }) => {
                                 />
                             </Form.Group>
 
-                            <div className="login-options">
+                            {/* <div className="login-options">
                                 <Form.Group controlId="RememberMe">
                                     <Form.Check
                                         type="checkbox"
@@ -363,7 +363,7 @@ const LoginModal = ({ show, onHide }) => {
                                 <Link to="/forgot-password" onClick={onClose}>
                                     Forgot Password?
                                 </Link>
-                            </div>
+                            </div> */}
                         </>
                     )}
 
